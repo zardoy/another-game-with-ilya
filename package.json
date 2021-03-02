@@ -1,0 +1,14 @@
+{
+  "name": "another-game-with-ilya",
+  "version": "1.0.0",
+  "repository": "https://github.com/zardoy/another-game-with-ilya.git",
+  "author": "Vitaly Turovsky <vital2580@icloud.com>",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "start": "tsc --watch"
+  },
+  "devDependencies": {
+    "typescript": "^4.2.2"
+  }
+}
