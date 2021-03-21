@@ -4,6 +4,11 @@ export const debug = (str: string) => {
     debugElem.insertAdjacentText("beforeend", str + "\n");
 };
 
+// find better alternative
+export const entries = <T extends object>(obj: T): [keyof T, T[keyof T]][] => {
+    return Object.entries(obj) as any;
+};
+
 export const createProgram = (gl: WebGL2RenderingContext, vertexShader: string, fragmentShader: string) => {
     const createShader = (gl: WebGL2RenderingContext, type: number, source: string) => {
         const shader = gl.createShader(type);

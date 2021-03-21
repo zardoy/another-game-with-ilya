@@ -3,6 +3,7 @@ declare const debugElem: HTMLDivElement;
 declare const mousePos: HTMLDivElement;
 declare const _: {
     chunk: any;
+    times: any;
 };
 
 // fix for chromium browsers
