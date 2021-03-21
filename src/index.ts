@@ -1,3 +1,9 @@
+// check support for events
+// right top corner - (battery) time
+import { physicsUpdate, render } from "./loop.js";
+import { createProgram, debug, isMouseLocked } from "./util.js";
+import "./integrations.js";
+
 const glsl = x => x;
 
 const resize = () => {
@@ -7,55 +13,17 @@ const resize = () => {
 resize();
 window.addEventListener("resize", resize);
 
+// document.addEventListener("mousedown", () => {
+//     document.documentElement.requestPointerLock();
+// });
+
+// document.addEventListener("pointerlockerror")
+
 const gl = canvas.getContext("webgl2");
 
 if (!gl) {
-    throw new Error("WebGL isn't supported on your platform");
+    throw new Error("WebGL 2 isn't supported on your platform. Probably you could enable it manually");
 }
-
-const createShader = (gl: WebGL2RenderingContext, type: number, source: string) => {
-    const shader = gl.createShader(type);
-    gl.shaderSource(shader, source);
-    gl.compileShader(shader);
-    const success = gl.getShaderParameter(shader, gl.COMPILE_STATUS);
-    if (!success) {
-        const info = gl.getShaderInfoLog(shader);
-        gl.deleteShader(shader);
-        throw new Error("Shader compile error: " + info);
-    }
-    return shader;
-};
-
-const createProgram = (gl: WebGL2RenderingContext, vertexShader: WebGLShader, fragmentShader: WebGLShader) => {
-    const program = gl.createProgram();
-    // просто добавляем шейдеры они пока не знают друг о друга
-    gl.attachShader(program, vertexShader);
-    gl.attachShader(program, fragmentShader);
-    // сопрягаем уже
-    gl.linkProgram(program);
-    const linkSuccess = gl.getProgramParameter(program, gl.LINK_STATUS);
-    if (!linkSuccess) {
-        const info = gl.getProgramInfoLog(program);
-        gl.deleteProgram(program);
-        throw new Error("Program link error: " + info);
-    }
-    return program;
-};
-
-const vertices = [
-    -0.5,
-    0.5,
-    -0.5,
-    -0.5,
-    0.0,
-    -0.5
-];
-
-const vertex_buffer = gl.createBuffer();
-
-gl.bindBuffer(gl.ARRAY_BUFFER, vertex_buffer);
-gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
-gl.bindBuffer(gl.ARRAY_BUFFER, null);
 
 // SHADERS
 
@@ -63,40 +31,53 @@ const vertexCode = glsl`#version 300 es
 
 in vec4 a_position;
 
+// in vec2 a_position;
+
+// uniform vec2 u_resolution;
+
 void main() {
+    // vec2 clip_space = a_position / u_resolution * 2 - 1.0;
+    
+    // gl_Position = vec4(clip_space);
     gl_Position = a_position;
 }
 `;
-const vertexShader = createShader(gl, gl.VERTEX_SHADER, vertexCode);
-
 const fragmentCode = glsl`#version 300 es
 precision highp float;
+
+uniform vec4 u_color;
 
 out vec4 outColor;
 
 void main() {
-
+    outColor = u_color;
 }
 `;
-const fragmentShader = createShader(gl, gl.FRAGMENT_SHADER, fragmentCode);
-
-const shaderProgram = createProgram(gl, vertexShader, fragmentShader);
+const shaderProgram = createProgram(gl, vertexCode, fragmentCode);
 
 const positionAttributeLocation = gl.getAttribLocation(shaderProgram, "a_position");
 
 const positionBuffer = gl.createBuffer();
 gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-const positions = [
-    0, 0,
-    0, 0.5,
-    0.7, 0
-];
-gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
 
 const vao = gl.createVertexArray();
 
+// now we're working with this vertex array
 gl.bindVertexArray(vao);
+// > 2
 gl.enableVertexAttribArray(positionAttributeLocation);
 
+gl.vertexAttribPointer(positionAttributeLocation, 2, gl.FLOAT, false, 0, 0);
 
-const size = 2;
+// chore: adjust viewport
+gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+
+gl.useProgram(shaderProgram);
+
+setInterval(physicsUpdate, 10);
+
+const renderLoop = () => {
+    render(gl, shaderProgram);
+    requestAnimationFrame(renderLoop);
+};
+renderLoop();
