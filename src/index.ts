@@ -1,7 +1,8 @@
 // check support for events
 // right top corner - (battery) time
 import { physicsUpdate, render } from "./loop.js";
-import { createProgram, debug, isMouseLocked } from "./util.js";
+import { createProgram, debug, isMouseLocked, mapVector } from "./util.js";
+import vec3 from "./vec3";
 import "./integrations.js";
 
 const glsl = x => x;
@@ -76,7 +77,19 @@ gl.useProgram(shaderProgram);
 
 setInterval(physicsUpdate, 10);
 
+let fps = 0;
+setInterval(() => {
+    const fpsElem: HTMLSpanElement = document.querySelector("#fps")!;
+    fpsElem.innerText = fps + "";
+    fps = 0;
+    vec3(0, 0, 0);
+}, 1000);
+
 const renderLoop = () => {
+    fps++;
+    // const colorUniformLocation = gl.getUniformLocation(shaderProgram, "u_color");
+    // gl.uniform4f(colorUniformLocation, 1, 0, 0, 1);
+    gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
     render(gl, shaderProgram);
     requestAnimationFrame(renderLoop);
 };

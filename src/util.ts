@@ -1,4 +1,19 @@
+import { Vec3 } from "vec3";
+
+import { ArrayPoint, CoordinateComponent } from "./structures.js";
+import vec3 from "./vec3.js";
+
 export const isMouseLocked = () => !!document.pointerLockElement;
+
+export const mapVector = (vector: Vec3, callback: (value: number, index: 0 | 1 | 2, component: CoordinateComponent) => number) => {
+    const c: CoordinateComponent[] = ["x", "y", "z"];
+    const newArray = vector.toArray().map((value, index) =>
+        callback(value, index as any, c[index])
+    ) as ArrayPoint;
+    vector.update(
+        vec3(...newArray)
+    );
+};
 
 export const debug = (str: string) => {
     debugElem.insertAdjacentText("beforeend", str + "\n");
@@ -7,6 +22,9 @@ export const debug = (str: string) => {
 // find better alternative
 export const entries = <T extends object>(obj: T): [keyof T, T[keyof T]][] => {
     return Object.entries(obj) as any;
+};
+export const keys = <T extends object>(obj: T): (keyof T)[] => {
+    return Object.keys(obj) as any;
 };
 
 export const createProgram = (gl: WebGL2RenderingContext, vertexShader: string, fragmentShader: string) => {
