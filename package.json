@@ -6,9 +6,14 @@
   "license": "MIT",
   "private": true,
   "scripts": {
-    "start": "tsc --watch"
+    "start": "snowpack dev"
   },
   "devDependencies": {
+    "snowpack": "^3.1.2",
     "typescript": "^4.2.2"
+  },
+  "dependencies": {
+    "lodash": "^4.17.21",
+    "vec3": "^0.1.7"
   }
 }

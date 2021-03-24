@@ -10,17 +10,32 @@
             margin: 0;
             overflow: hidden;
         }
+
+        #fps {
+            position: fixed;
+            top: 0;
+            left: 0;
+            border: 2px solid rgb(87, 87, 87);
+            background: rgb(128, 128, 128);
+            color: white;
+            font-family: 'Courier New', Courier, monospace;
+            padding: 2px;
+        }
+
+        #fps::before {
+            content: "FPS: ";
+        }
     </style>
 </head>
 
 <body>
+    <span id="fps"></span>
     <canvas id="canvas"></canvas>
     <div id="debugElem"
         style="position: fixed;right: 0;top: 0;width: 400px;overflow: auto;font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;font-size: 1em;white-space: pre-line;">
     </div>
     <div id="mousePos" style="position: fixed;top: 0;left: 0;"></div>
-    <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
-    <script type="module" src="dist/index.js"></script>
+    <script type="module" src="index.js"></script>
 </body>
 
 </html>
