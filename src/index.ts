@@ -7,9 +7,32 @@ import "./integrations.js";
 
 const glsl = x => x;
 
+const downgradeResolution = 1;
+
+if (downgradeResolution > 1) {
+    canvas.style.imageRendering = "pixelated";
+}
+
+const touchHandler = (event: Event) => {
+    // event.preventDefault();
+};
+window.addEventListener("touchstart", touchHandler);
+window.addEventListener("touchmove", touchHandler);
+window.addEventListener("touchend", touchHandler);
+
 const resize = () => {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+    const dpr = window.devicePixelRatio || 1;
+
+    if (downgradeResolution > 1) {
+        canvas.width = window.innerWidth / downgradeResolution;
+        canvas.height = window.innerHeight / downgradeResolution;
+    } else {
+        // calculating proper resolution
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+
+    (document.querySelector("#resolution") as HTMLSpanElement).innerText = `${canvas.width} X ${canvas.height}`;
 };
 resize();
 window.addEventListener("resize", resize);
