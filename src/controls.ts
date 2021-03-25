@@ -25,7 +25,7 @@ export const activeControls = {
     })),
     ...{
         movement: controlsOr(
-            keyboard.directionalKeys("wasd"),
+            defaultControls.special.directionalKeys,
             gamepad.stick("left")
         )
     }

@@ -13,13 +13,6 @@ if (downgradeResolution > 1) {
     canvas.style.imageRendering = "pixelated";
 }
 
-const touchHandler = (event: Event) => {
-    // event.preventDefault();
-};
-window.addEventListener("touchstart", touchHandler);
-window.addEventListener("touchmove", touchHandler);
-window.addEventListener("touchend", touchHandler);
-
 const resize = () => {
     const dpr = window.devicePixelRatio || 1;
 

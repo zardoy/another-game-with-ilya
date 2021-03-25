@@ -8,10 +8,12 @@ document.addEventListener("pointerlockchange", () => {
     }
 });
 
-document.addEventListener("click", () => {
-    //@ts-ignore
-    const usingRawInput = !!document.documentElement.requestPointerLock({
-        unadjustedMovement: true
+if (document.documentElement.requestPointerLock) {
+    document.addEventListener("click", () => {
+        //@ts-ignore
+        const usingRawInput = !!document.documentElement.requestPointerLock({
+            unadjustedMovement: true
+        });
+        console.log(usingRawInput ? "Using raw input" : "Not using raw input");
     });
-    console.log(usingRawInput ? "Using raw input" : "Not using raw input");
-});
+}
