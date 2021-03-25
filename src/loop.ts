@@ -1,6 +1,8 @@
+import { Vector2 } from "contro/dist/utils/math";
 import _ from "lodash";
 import { Vec3 } from "vec3";
 
+import { activeControls } from "./controls.js";
 import { ArrayPoint, Matrix4x4, TrianglePoints } from "./structures.js";
 import { entries, mapVector } from "./util.js";
 import vec3 from "./vec3.js";
@@ -210,8 +212,8 @@ matProj.matrix[2][3] = 1.0;
 matProj.matrix[3][3] = 0.0;
 
 document.addEventListener("resize", () => {
-    // fAspectRatio = canvas.width / canvas.height;
-    // matProj.m[0][0] = fAspectRatio * fFovRad;
+    fAspectRatio = canvas.width / canvas.height;
+    matProj.matrix[0][0] = fAspectRatio * fFovRad;
 });
 let rz = 0, ry = 0;
 document.addEventListener("mousemove", event => {
@@ -223,75 +225,40 @@ document.addEventListener("mousemove", event => {
         ry -= deltaY / delimeter;
 });
 
-const movement = {
-    ACCELERATION: 10,
-    joystick: false,
-
-    shifted: false,
-
-    forward: 0,
-    left: 0,
-    up: 0
-};
-
-const keyPressToggle = (event: KeyboardEvent) => {
-    if (movement.joystick) return;
-    const newKeyPressed = event.type === "keydown";
-    let { code } = event;
-    if (code === "ShiftLeft") {
-        movement.shifted = newKeyPressed;
-    }
-    if (newKeyPressed) {
-        if (code === "KeyW" || code === "KeyS") {
-            if (movement.forward) return;
-            movement.forward = code === "KeyW" ? 1 : -1;
-        } else if (code === "KeyA" || code === "KeyD") {
-            if (movement.left) return;
-            movement.left = code === "KeyA" ? 1 : -1;
-        } else if (code === "KeyQ" || code === "Space") {
-            if (movement.up) return;
-            movement.up = code === "Space" ? 1 : -1;
-        }
-    } else {
-        if (code === "KeyW" || code === "KeyS") {
-            movement.forward = 0;
-        } else if (code === "KeyA" || code === "KeyD") {
-            movement.left = 0;
-        } else if (code === "KeyQ" || code === "Space") {
-            movement.up = 0;
-        }
-    }
-};
-
-document.addEventListener("keydown", keyPressToggle);
-document.addEventListener("keyup", keyPressToggle);
-
 const movementDivider = 100;
 const moveCamera = (vecAdd: Vec3, subtract: boolean) => {
     mapVector(vecAdd,
-        val => val / movementDivider
-            * (movement.shifted ? movement.ACCELERATION : 1));
+        val => val / movementDivider);
     camera[subtract ? "subtract" : "add"](vecAdd);
 };
 
 export const physicsUpdate = () => {
     // key engine from phaser
-    if (movement.forward) {
-        moveCamera(
-            vec3(-Math.sin(rz), 0, Math.cos(rz)),
-            movement.forward > 0
-        );
-    }
-    if (movement.left) {
-        moveCamera(
-            vec3(-Math.cos(rz), 0, -Math.sin(rz)),
-            movement.left > 0
-        );
-    }
-    if (movement.up) {
+    if (activeControls.jump.query()) {
         moveCamera(
             vec3(0, 1, 0),
-            movement.up > 0
+            true
+        );
+    }
+    if (activeControls.crouch.query()) {
+        moveCamera(
+            vec3(0, -1, 0),
+            true
+        );
+    }
+
+    // todo-high!
+    const movement: Vector2 = activeControls.movement.query();
+    if (movement.x) {
+        moveCamera(
+            vec3(-Math.sin(rz), 0, Math.cos(rz)),
+            movement.x > 0
+        );
+    }
+    if (movement.y) {
+        moveCamera(
+            vec3(-Math.cos(rz), 0, -Math.sin(rz)),
+            movement.y > 0
         );
     }
 };

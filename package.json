@@ -13,6 +13,7 @@
     "typescript": "^4.2.2"
   },
   "dependencies": {
+    "contro": "^2.2.0",
     "lodash": "^4.17.21",
     "vec3": "^0.1.7"
   }

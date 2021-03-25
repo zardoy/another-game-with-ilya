@@ -19,6 +19,11 @@ cli-spinners@^2.5.0:
   resolved "https://registry.yarnpkg.com/cli-spinners/-/cli-spinners-2.6.0.tgz#36c7dc98fb6a9a76bd6238ec3f77e2425627e939"
   integrity sha512-t+4/y50K/+4xcCRosKkA7W4gTr1MySvLV0q+PxmG7FJ5g+66ChKurYjxBCjHggHH3HA5Hh9cy+lcUGWDqVH+4Q==
 
+contro@^2.2.0:
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/contro/-/contro-2.2.0.tgz#595aa71ed9a412cd0b58cc3bfede72143a1890ab"
+  integrity sha512-gIjXC7t3J8q5r61jOid0CsbcOPIOuUYG3eL+45P5SgKlpW427sukZ2aPhfPVVNuM4Tkw1iipGv8JvT2ax1E6wQ==
+
 default-browser-id@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/default-browser-id/-/default-browser-id-2.0.0.tgz#01ecce371a71e85f15a17177e7863047e73dbe7d"
