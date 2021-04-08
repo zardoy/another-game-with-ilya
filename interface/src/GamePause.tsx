@@ -1,7 +1,9 @@
-import React, { SyntheticEvent } from "react";
+import React, { SyntheticEvent, useState } from "react";
 
 import styled from "@emotion/styled";
 import { CSSProperties } from "@material-ui/styles";
+
+import { getRendererName } from "./gameUtil";
 
 const fullScreenFixed = `
     position: fixed;
@@ -15,7 +17,7 @@ const Background = styled.div`
     ${fullScreenFixed}
 `;
 
-const Menu = styled.div`
+const PauseRoot = styled.div`
     ${fullScreenFixed}
     backdrop-filter: blur(3px);
     display: flex;
@@ -94,6 +96,26 @@ const MenuActionOWButton: React.FC<{ keyboardKey?: string; style?: CSSProperties
     </Button>;
 };
 
+const RightCornerInfo: React.FC = () => {
+    const [gpu] = useState(() => {
+        try {
+            return getRendererName();
+        } catch(err) {
+            console.warn("Unable to detect gpu", err);
+            return "Unknown";
+        }
+    });
+    
+    return <div style={{
+        position: "fixed",
+        top: 0,
+        right: 0,
+        padding: 5
+    }}>
+        GPU: {gpu}
+    </div>;
+};
+
 type ButtonAction = `open-ui-${"settings"}`;
 
 interface ComponentProps {
@@ -104,14 +126,15 @@ interface ComponentProps {
 }
 
 let GamePause: React.FC<ComponentProps> = ({ buttons }) => {
-    return <Menu>
+    return <PauseRoot>
+        <RightCornerInfo />
         {
             buttons.map(({ label, click = () => { } }, index) => {
                 return <MenuPrimaryButton key={label} autoFocus={index === 0}>{label}</MenuPrimaryButton>;
             })
         }
         <MenuActionOWButton /* tabIndex={-1} */ style={{ position: "absolute", bottom: 30, right: 35 }} data-button="esc">BACK</MenuActionOWButton>
-    </Menu>;
+    </PauseRoot>;
 };
 
 export default GamePause;
