@@ -190,9 +190,7 @@ const vecbymat1 = (vector: Vec3, { matrix: matrix }: Matrix4x4) => {
 // };
 
 const blocks = [
-    new Block(
-        vec3(0, 0, 1)
-    )
+    new Block(vec3(0, 0, 1))
 ];
 // _.times(10, x => {
 //     _.times(10, z => {
@@ -237,28 +235,28 @@ export const physicsUpdate = () => {
     if (activeControls.jump.query()) {
         moveCamera(
             vec3(0, 1, 0),
-            true
+            false
         );
     }
     if (activeControls.crouch.query()) {
         moveCamera(
             vec3(0, -1, 0),
-            true
+            false
         );
     }
 
     // todo-high!
     const movement: Vector2 = activeControls.movement.query();
-    if (movement.x) {
-        moveCamera(
-            vec3(-Math.sin(rz), 0, Math.cos(rz)),
-            movement.x > 0
-        );
-    }
     if (movement.y) {
         moveCamera(
-            vec3(-Math.cos(rz), 0, -Math.sin(rz)),
+            vec3(-Math.sin(rz), 0, Math.cos(rz)),
             movement.y > 0
+        );
+    }
+    if (movement.x) {
+        moveCamera(
+            vec3(-Math.cos(rz), 0, -Math.sin(rz)),
+            movement.x > 0
         );
     }
 };
