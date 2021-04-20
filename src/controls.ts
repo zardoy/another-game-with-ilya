@@ -8,7 +8,9 @@ const defaultControls = {
     general: {
         jump: "Space A",
         inventory: "E LB",
-        crouch: "Shift B"
+        crouch: "Shift B",
+        // todo fix joystick button (undefined values)
+        slowDown: "Control B"
     },
     special: {
         directionalKeys: keyboard.directionalKeys("wasd")

@@ -41,6 +41,10 @@
         #resolution::before {
             content: "RESOLUTION: ";
         }
+
+        #skipped::before {
+            content: "SKIPPED: ";
+        }
     </style>
 </head>
 
@@ -48,6 +52,7 @@
     <div class="stats">
         <span id="fps"></span>
         <span id="resolution"></span>
+        <span id="skipped"></span>
     </div>
     <canvas id="canvas"></canvas>
     <div id="debugElem"

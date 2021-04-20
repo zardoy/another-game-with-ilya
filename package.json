@@ -14,7 +14,9 @@
   },
   "dependencies": {
     "contro": "^2.2.0",
+    "diamond-square": "^1.2.0",
     "lodash": "^4.17.21",
+    "prismarine-world": "^3.6.0",
     "vec3": "^0.1.7"
   }
 }

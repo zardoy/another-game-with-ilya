@@ -2,8 +2,19 @@
 // right top corner - (battery) time
 import { physicsUpdate, render } from "./loop.js";
 import { createProgram, debug, isMouseLocked, mapVector } from "./util.js";
+import prismarineDiamondSquare from "diamond-square";
 import vec3 from "./vec3";
 import "./integrations.js";
+import prismarineWorld from "prismarine-world";
+import { Vec3 } from "vec3";
+
+// const World = prismarineWorld("1.12");
+
+// const diamondSquare = prismarineDiamondSquare({ version: '1.12', seed: Math.floor(Math.random() * Math.pow(2, 31)) });
+
+// const world = new World(diamondSquare);
+
+// world.getBlock(new Vec3(3, 50, 3)).then(block => console.log(JSON.stringify(block, null, 2)));
 
 const glsl = x => x;
 

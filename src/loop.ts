@@ -59,51 +59,51 @@ class Triangle {
     }
 }
 
-const addTriangles = (blockPosition: Vec3) => {
-    const blockSideToCoordinateMap: Record<BlockSide, ["x" | "y" | "z", 1 | -1]> = {
-        east: ["x", 1],
-        west: ["x", -1],
-        south: ["z", 1],
-        north: ["z", -1],
-        top: ["y", 1],
-        bottom: ["y", -1],
-    };
-
+const blockSideToCoordinateMap: Record<BlockSide, ["x" | "y" | "z", 1 | -1]> = {
+    west: ["x", 1],
+    east: ["x", -1],
+    south: ["z", 1],
+    north: ["z", -1],
+    top: ["y", 1],
+    bottom: ["y", -1],
+};
+const getTriangles = (blockPosition: Vec3): Record<BlockSide, [Triangle, Triangle]> => {
     type SquareCoordinateArr = [ArrayPoint, ArrayPoint, ArrayPoint, ArrayPoint];
     type SquareCoordinate = [Vec3, Vec3, Vec3, Vec3];
 
     const blockSidesArr: Record<BlockSide, SquareCoordinateArr> = {
-        top: [
-            [0, 1, 0],
-            [1, 1, 0],
+        top: [//red
+            [0, 1, 1],
             [1, 1, 1],
-            [0, 1, 1]
-        ],
-        bottom: [
-            [0, 0, 0],
-            [1, 0, 0],
-            [1, 0, 1],
-            [0, 0, 1]
-        ],
-        south: [
-            [0, 0, 0],
-            [1, 0, 0],
             [1, 1, 0],
             [0, 1, 0]
         ],
-        north: [
-            [0, 0, 1],
-            [1, 0, 1],
-            [1, 1, 1],
-            [0, 1, 1]
-        ],
-        east: [
+        bottom: [//blue
+            [0, 0, 0],
             [1, 0, 0],
             [1, 0, 1],
+            [0, 0, 1],
+        ],
+        south: [//blue
             [1, 1, 1],
+            [0, 1, 1],
+            [0, 0, 1],
+            [1, 0, 1],
+        ],
+        north: [
+            [0, 1, 0],
             [1, 1, 0],
+            [1, 0, 0],
+            [0, 0, 0]
         ],
         west: [
+            [1, 1, 0],
+            [1, 1, 1],
+            [1, 0, 1],
+
+            [1, 0, 0],
+        ],
+        east: [
             [0, 0, 0],
             [0, 0, 1],
             [0, 1, 1],
@@ -134,14 +134,9 @@ class World {
     static HEIGHT = 256;
 }
 class Block {
-    static TRIANGLES_COUNT = 12;
-
-    sideTriangles: Record<BlockSide, [Triangle, Triangle]>;
     constructor(
         public position: Vec3
-    ) {
-        this.sideTriangles = addTriangles(position);
-    }
+    ) { }
 }
 class Chunk {
     static SIZE = 16;
@@ -159,12 +154,6 @@ const triangleToClip = (buf: Triangle) => {
     }
     return count;
 };
-
-// class Mesh {
-//     constructor(
-//         public triangles: Triangle[]
-//     ) { }
-// }
 
 const multipleMatrix = (vector: Vec3, { matrix }: Matrix4x4) => {
     mapVector(vector, (value, i) => {
@@ -189,18 +178,43 @@ const vecbymat1 = (vector: Vec3, { matrix: matrix }: Matrix4x4) => {
 //     }
 // };
 
+const doesBlockExist = (position: Vec3) => {
+    for (const block of blocks) {
+        if (block.position.equals(position)) return true;
+    }
+    return false;
+};
+
 const blocks = [
-    new Block(vec3(0, 0, 1))
+    new Block(vec3(0, 0, 1)),
 ];
-// _.times(10, x => {
-//     _.times(10, z => {
-//         blocks.push(
-//             new Block(
-//                 createPoint(x, 0, z)
-//             )
-//         );
-//     });
-// });
+const mesh: Array<[Triangle, Triangle]> = [];
+const recalculateMesh = () => {
+    for (const block of blocks) {
+        const sideTriangles = getTriangles(block.position);
+        let sideExists = {};
+        for (const [side, triangles] of entries(sideTriangles)) {
+            const siblingBlockPos = block.position.clone();
+            const [componentAdd, valueToAdd] = blockSideToCoordinateMap[side];
+            mapVector(siblingBlockPos, (value, _index, component) => {
+                if (component !== componentAdd) return value;
+                return value + valueToAdd;
+            });
+            const siblingBlockExists = doesBlockExist(siblingBlockPos);
+
+            if (!siblingBlockExists)
+                mesh.push(triangles);
+        }
+    }
+};
+_.times(10, x => {
+    _.times(10, z => {
+        blocks.push(
+            new Block(vec3(x, 0, z))
+        );
+    });
+});
+recalculateMesh();
 const matProj = new Matrix4x4();
 matProj.matrix[0][0] = fAspectRatio * fFovRad;
 matProj.matrix[1][1] = fFovRad;
@@ -223,8 +237,10 @@ document.addEventListener("mousemove", event => {
         ry -= deltaY / delimeter;
 });
 
-const movementDivider = 100;
+const MOVEMENT_DIVIDER_MIN = 100;
 const moveCamera = (vecAdd: Vec3, subtract: boolean) => {
+    let movementDivider = MOVEMENT_DIVIDER_MIN;
+    if (activeControls.slowDown.query()) movementDivider *= 2;
     mapVector(vecAdd,
         val => val / movementDivider);
     camera[subtract ? "subtract" : "add"](vecAdd);
@@ -267,7 +283,10 @@ const drawTriangles = (gl: WebGL2RenderingContext, points: TrianglePoints, metho
     gl.drawArrays(gl.TRIANGLES, 0, points.length);
 };
 
+let skippedCount = 0;
+
 export const render = (gl: WebGL2RenderingContext, shaderProgram: WebGLProgram) => {
+    skippedCount = 0;
     const colorUniformLocation = gl.getUniformLocation(shaderProgram, "u_color");
     let RZ = new Matrix4x4(),
         RY = new Matrix4x4();
@@ -291,13 +310,29 @@ export const render = (gl: WebGL2RenderingContext, shaderProgram: WebGLProgram) 
         } else {
             gl.uniform4f(colorUniformLocation, 0, 1, 0, 1);
         }
-        for (const [side, triangles] of entries(block.sideTriangles)) {
+        for (const triangles of mesh) {
+            // if (side === "top") {
+            //     gl.uniform4f(colorUniformLocation, 1, 0, 0, 1);
+            // } else if (side === "south") {
+            //     gl.uniform4f(colorUniformLocation, 0, 0, 1, 1);
+            // } else if (side === "west") {
+            //     gl.uniform4f(colorUniformLocation, 0, 0.5, 0.5, 1);
+            // } else if (side === "bottom") {
+            //     gl.uniform4f(colorUniformLocation, 0.5, 0.5, 0, 1);
+            // } else if (side === "east") {
+            //     gl.uniform4f(colorUniformLocation, 0.5, 0, 0, 1);
+            // } else {
+            //     gl.uniform4f(colorUniformLocation, 0, 1, 0, 1);
+            // }
             triangle: for (const triangle of triangles) {
                 if (
                     triangle.normal.x * (triangle.points[0].x - camera.x) +
                     triangle.normal.y * (triangle.points[0].y - camera.y) +
                     triangle.normal.z * (triangle.points[0].z - camera.z) >= 0
-                ) continue;
+                ) {
+                    skippedCount++;
+                    continue;
+                };
                 let { points } = triangle;
                 points = points.map(vec => vec.clone()) as TrianglePoints;
                 for (const i in points) {
@@ -306,7 +341,10 @@ export const render = (gl: WebGL2RenderingContext, shaderProgram: WebGLProgram) 
                     vecbymat1(points[i], RZ);
                     vecbymat1(points[i], RY);
                     points[i].z -= fNear;
-                    if (points[i].z <= fNear) continue triangle;
+                    if (points[i].z <= fNear) {
+                        skippedCount++;
+                        continue triangle;
+                    }
                     multipleMatrix(points[i], matProj);
                     // if (triangleToClip(triangle) > 0) continue;
                 }
@@ -314,4 +352,6 @@ export const render = (gl: WebGL2RenderingContext, shaderProgram: WebGLProgram) 
             }
         }
     }
+    //@ts-ignore
+    skipped.innerText = skippedCount;
 };
