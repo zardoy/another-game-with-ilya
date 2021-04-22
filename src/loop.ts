@@ -1,4 +1,4 @@
-import { Vector2 } from "contro/dist/utils/math";
+import type { Vector2 } from "contro/dist/utils/math";
 import _ from "lodash";
 import { Vec3 } from "vec3";
 
