@@ -67,9 +67,10 @@ const blockSideToCoordinateMap: Record<BlockSide, ["x" | "y" | "z", 1 | -1]> = {
     top: ["y", 1],
     bottom: ["y", -1],
 };
+type SquareCoordinate = [Vec3, Vec3, Vec3, Vec3];
+
 const getTriangles = (blockPosition: Vec3): Record<BlockSide, [Triangle, Triangle]> => {
     type SquareCoordinateArr = [ArrayPoint, ArrayPoint, ArrayPoint, ArrayPoint];
-    type SquareCoordinate = [Vec3, Vec3, Vec3, Vec3];
 
     const blockSidesArr: Record<BlockSide, SquareCoordinateArr> = {
         top: [//red
@@ -111,19 +112,18 @@ const getTriangles = (blockPosition: Vec3): Record<BlockSide, [Triangle, Triangl
         ],
     };
     const blockSidesTriangles = _.mapValues(blockSidesArr, (squareCoordinatesArr) => {
-        const squareCoordinate = squareCoordinatesArr.map(coordinateArr => {
+        const squareCoordinates = squareCoordinatesArr.map(coordinateArr => {
             const point = vec3(...coordinateArr);
             point.add(blockPosition);
             return point;
         }) as SquareCoordinate;
         const triangles = [
-            squareCoordinate.slice(0, -1) as TrianglePoints,
+            squareCoordinates.slice(0, -1) as TrianglePoints,
             [
-                ...squareCoordinate.slice(2),
-                squareCoordinate[0]
+                ...squareCoordinates.slice(2),
+                squareCoordinates[0]
             ] as TrianglePoints
-        ]
-            .map(triangleCoordinates => new Triangle(triangleCoordinates)) as [Triangle, Triangle];
+        ].map(triangleCoordinates => new Triangle(triangleCoordinates)) as [Triangle, Triangle];
         return triangles;
     });
 
@@ -286,6 +286,15 @@ export const physicsUpdate = () => {
         );
     }
 };
+
+const drawCrosshair = (gl: WebGL2RenderingContext) => {
+    const vert = [
+        -0.002, -0.001,
+        0.002,
+    ];
+    // drawTriangles(gl, rectToTriangles());
+};
+
 const drawTriangles = (gl: WebGL2RenderingContext, points: TrianglePoints, method: "fill" | "lines" = "fill") => {
     const triangles2dPoints = points.map(({ x, y }) => [x, y]);
 
@@ -350,6 +359,6 @@ export const render = (gl: WebGL2RenderingContext, shaderProgram: WebGLProgram) 
             drawTriangles(gl, points);
         }
     }
-    //@ts-ignore
-    triangles.innerText = drawedTriangles;
+    drawCrosshair(gl);
+    document.getElementById("triangles").innerText = drawedTriangles.toString();
 };

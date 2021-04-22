@@ -16,7 +16,7 @@ export const mapVector = (vector: Vec3, callback: (value: number, index: 0 | 1 |
 };
 
 export const debug = (str: string) => {
-    debugElem.insertAdjacentText("beforeend", str + "\n");
+    console.log(str);
 };
 
 // find better alternative

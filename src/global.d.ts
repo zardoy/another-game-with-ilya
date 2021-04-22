@@ -1,6 +1,4 @@
 declare const canvas: HTMLCanvasElement;
-declare const debugElem: HTMLDivElement;
-declare const mousePos: HTMLDivElement;
 declare module "lodash" {
     export const chunk: <T extends any[]>(arr: T, chunkSize: number) => T;
     export const times: (count: number, callback: (index: number) => unknown) => void;
@@ -24,5 +22,13 @@ interface Gamepad {
                 strongMagnitude: number;
             }
         ): Promise<void>;
+    };
+}
+
+// todo: fix snowpack
+interface ImportMeta {
+    hot: any;
+    env: {
+        NODE_ENV: "development" | "production";
     };
 }
