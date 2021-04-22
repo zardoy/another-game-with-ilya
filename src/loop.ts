@@ -217,8 +217,8 @@ const recalculateMesh = () => {
         }
     }
 };
-_.times(10, x => {
-    _.times(10, z => {
+_.times(1000, x => {
+    _.times(1000, z => {
         blocks.push(
             new Block(vec3(x, 0, z))
         );
