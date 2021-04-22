@@ -188,11 +188,18 @@ const doesBlockExist = (position: Vec3) => {
 const blocks = [
     new Block(vec3(0, 0, 1)),
 ];
-const mesh: Array<[Triangle, Triangle]> = [];
+type Color = [number, number, number];
+const mesh: Array<{
+    triangles: [Triangle, Triangle],
+    color: Color;
+}> = [];
 const recalculateMesh = () => {
     for (const block of blocks) {
         const sideTriangles = getTriangles(block.position);
-        let sideExists = {};
+        const blockColor: Color =
+            (block.position.x + block.position.z % 2) % 2 === 0 ?
+                [1, 0, 0] :
+                [0, 1, 0];
         for (const [side, triangles] of entries(sideTriangles)) {
             const siblingBlockPos = block.position.clone();
             const [componentAdd, valueToAdd] = blockSideToCoordinateMap[side];
@@ -203,7 +210,10 @@ const recalculateMesh = () => {
             const siblingBlockExists = doesBlockExist(siblingBlockPos);
 
             if (!siblingBlockExists)
-                mesh.push(triangles);
+                mesh.push({
+                    triangles,
+                    color: blockColor
+                });
         }
     }
 };
@@ -283,10 +293,8 @@ const drawTriangles = (gl: WebGL2RenderingContext, points: TrianglePoints, metho
     gl.drawArrays(gl.TRIANGLES, 0, points.length);
 };
 
-let skippedCount = 0;
-
 export const render = (gl: WebGL2RenderingContext, shaderProgram: WebGLProgram) => {
-    skippedCount = 0;
+    let drawedTriangles = 0;
     const colorUniformLocation = gl.getUniformLocation(shaderProgram, "u_color");
     let RZ = new Matrix4x4(),
         RY = new Matrix4x4();
@@ -303,55 +311,45 @@ export const render = (gl: WebGL2RenderingContext, shaderProgram: WebGLProgram) 
     RY.matrix[2][2] = Math.cos(ry);
     gl.clearColor(0, 0, 0, 0);
     gl.clear(gl.COLOR_BUFFER_BIT);
+    gl.uniform4f(colorUniformLocation, 1, 0, 0, 1);
 
-    for (const block of blocks) {
-        if ((block.position.x + block.position.z % 2) % 2 === 0) {
-            gl.uniform4f(colorUniformLocation, 1, 0, 0, 1);
-        } else {
-            gl.uniform4f(colorUniformLocation, 0, 1, 0, 1);
-        }
-        for (const triangles of mesh) {
-            // if (side === "top") {
-            //     gl.uniform4f(colorUniformLocation, 1, 0, 0, 1);
-            // } else if (side === "south") {
-            //     gl.uniform4f(colorUniformLocation, 0, 0, 1, 1);
-            // } else if (side === "west") {
-            //     gl.uniform4f(colorUniformLocation, 0, 0.5, 0.5, 1);
-            // } else if (side === "bottom") {
-            //     gl.uniform4f(colorUniformLocation, 0.5, 0.5, 0, 1);
-            // } else if (side === "east") {
-            //     gl.uniform4f(colorUniformLocation, 0.5, 0, 0, 1);
-            // } else {
-            //     gl.uniform4f(colorUniformLocation, 0, 1, 0, 1);
-            // }
-            triangle: for (const triangle of triangles) {
-                if (
-                    triangle.normal.x * (triangle.points[0].x - camera.x) +
-                    triangle.normal.y * (triangle.points[0].y - camera.y) +
-                    triangle.normal.z * (triangle.points[0].z - camera.z) >= 0
-                ) {
-                    skippedCount++;
-                    continue;
-                };
-                let { points } = triangle;
-                points = points.map(vec => vec.clone()) as TrianglePoints;
-                for (const i in points) {
-                    points[i].subtract(camera);
-                    points[i].z += fNear;
-                    vecbymat1(points[i], RZ);
-                    vecbymat1(points[i], RY);
-                    points[i].z -= fNear;
-                    if (points[i].z <= fNear) {
-                        skippedCount++;
-                        continue triangle;
-                    }
-                    multipleMatrix(points[i], matProj);
-                    // if (triangleToClip(triangle) > 0) continue;
-                }
-                drawTriangles(gl, points);
+    for (const { triangles, color } of mesh) {
+        gl.uniform4f(colorUniformLocation, ...color, 1);
+        // if (side === "top") {
+        //     gl.uniform4f(colorUniformLocation, 1, 0, 0, 1);
+        // } else if (side === "south") {
+        //     gl.uniform4f(colorUniformLocation, 0, 0, 1, 1);
+        // } else if (side === "west") {
+        //     gl.uniform4f(colorUniformLocation, 0, 0.5, 0.5, 1);
+        // } else if (side === "bottom") {
+        //     gl.uniform4f(colorUniformLocation, 0.5, 0.5, 0, 1);
+        // } else if (side === "east") {
+        //     gl.uniform4f(colorUniformLocation, 0.5, 0, 0, 1);
+        // } else {
+        //     gl.uniform4f(colorUniformLocation, 0, 1, 0, 1);
+        // }
+        triangle: for (const triangle of triangles) {
+            if (
+                triangle.normal.x * (triangle.points[0].x - camera.x) +
+                triangle.normal.y * (triangle.points[0].y - camera.y) +
+                triangle.normal.z * (triangle.points[0].z - camera.z) >= 0
+            ) continue;
+            let { points } = triangle;
+            points = points.map(vec => vec.clone()) as TrianglePoints;
+            for (const i in points) {
+                points[i].subtract(camera);
+                points[i].z += fNear;
+                vecbymat1(points[i], RZ);
+                vecbymat1(points[i], RY);
+                points[i].z -= fNear;
+                if (points[i].z <= fNear) continue triangle;
+                multipleMatrix(points[i], matProj);
+                // if (triangleToClip(triangle) > 0) continue;
             }
+            drawedTriangles++;
+            drawTriangles(gl, points);
         }
     }
     //@ts-ignore
-    skipped.innerText = skippedCount;
+    triangles.innerText = drawedTriangles;
 };
