@@ -39,7 +39,7 @@ let MouseRawInputSnackbar: React.FC<ComponentProps> = () => {
     >
         <Alert severity={rawInput ? "success" : "warning"}>
             Mouse Raw Input {rawInput ? "enabled" : "needs to be enabled!"}
-            <Button color="primary" size="small" component="a" target="_blank" href={howToEnableRawInputUrl}>MORE INFO</Button>
+            {!rawInput && <Button color="primary" size="small" component="a" target="_blank" href={howToEnableRawInputUrl}>MORE INFO</Button>}
         </Alert>
     </Snackbar>;
 };

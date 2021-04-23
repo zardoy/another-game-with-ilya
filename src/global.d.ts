@@ -1,7 +1,7 @@
 declare const canvas: HTMLCanvasElement;
 declare module "lodash" {
     export const chunk: <T extends any[]>(arr: T, chunkSize: number) => T;
-    export const times: (count: number, callback: (index: number) => unknown) => void;
+    export const times: <T>(count: number, callback: (index: number) => T) => T[];
     export const mapValues: <T extends object, K extends (value: T[keyof T]) => any>(obj: T, mapFn: K) =>
         Record<keyof T, ReturnType<K>>;
     export const without: <T extends any[]>(arr: T, value: T[number]) => T;

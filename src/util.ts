@@ -5,6 +5,10 @@ import vec3 from "./vec3.js";
 
 export const isMouseLocked = () => !!document.pointerLockElement;
 
+export const touchSupported = ('ontouchstart' in window) ||
+    (navigator.maxTouchPoints > 0) ||
+    (navigator.msMaxTouchPoints > 0);
+
 export const mapVector = (vector: Vec3, callback: (value: number, index: 0 | 1 | 2, component: CoordinateComponent) => number) => {
     const c: CoordinateComponent[] = ["x", "y", "z"];
     const newArray = vector.toArray().map((value, index) =>

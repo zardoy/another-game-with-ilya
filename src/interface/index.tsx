@@ -2,8 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom";
 import App from "./App";
 import { init } from "./gameUtil";
-
-// window.location.reload();
+import _ from "lodash";
 
 console.clear();
 

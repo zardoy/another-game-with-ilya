@@ -8,6 +8,8 @@ import "./integrations.js";
 import prismarineWorld from "prismarine-world";
 import { Vec3 } from "vec3";
 
+if (true) import("./interface");
+
 // const World = prismarineWorld("1.12");
 
 // const diamondSquare = prismarineDiamondSquare({ version: '1.12', seed: Math.floor(Math.random() * Math.pow(2, 31)) });
@@ -36,7 +38,7 @@ const resize = () => {
         canvas.height = window.innerHeight;
     }
 
-    (document.querySelector("#resolution") as HTMLSpanElement).innerText = `${canvas.width} X ${canvas.height}`;
+    document.getElementById("resolution").innerText = `${canvas.width} X ${canvas.height}`;
 };
 resize();
 window.addEventListener("resize", resize);

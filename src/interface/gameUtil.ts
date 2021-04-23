@@ -13,6 +13,10 @@ export const init = (): void => {
 
 /** Actually sync method. Should be executed only on page load */
 export const isRawInputSupported = async (): Promise<boolean> => {
+    document.addEventListener("pointerlockchange", e => {
+        e.stopImmediatePropagation();
+        e.stopPropagation();
+    }, { capture: true, once: true });
     let pointerLockResult: undefined | Promise<void>;
     try {
         //@ts-ignore

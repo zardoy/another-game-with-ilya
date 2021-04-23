@@ -1,8 +1,10 @@
-import React, { SyntheticEvent, useState } from "react";
+import React, { SyntheticEvent, useEffect, useState } from "react";
 
 import styled from "@emotion/styled";
 import { CSSProperties } from "@material-ui/styles";
 
+import { requestPointerLock } from "../integrations";
+import { isMouseLocked } from "../util";
 import { getRendererName } from "./gameUtil";
 
 const fullScreenFixed = `
@@ -100,12 +102,12 @@ const RightCornerInfo: React.FC = () => {
     const [gpu] = useState(() => {
         try {
             return getRendererName();
-        } catch(err) {
+        } catch (err) {
             console.warn("Unable to detect gpu", err);
             return "Unknown";
         }
     });
-    
+
     return <div style={{
         position: "fixed",
         top: 0,
@@ -126,14 +128,52 @@ interface ComponentProps {
 }
 
 let GamePause: React.FC<ComponentProps> = ({ buttons }) => {
-    return <PauseRoot>
+    const [show, setShow] = useState(false);
+
+    useEffect(() => {
+        const escListener = (e: KeyboardEvent) => {
+            if (e.code !== "Escape") return;
+            setShow(show => {
+                const newState = !show;
+                if (!newState) {
+                    // todo-high
+                    // special handling for escape key
+                    // if we dont add timeout otherwise we would get instant exit from pointer lock
+                    setTimeout(() => requestPointerLock(), 100);
+                }
+                return newState;
+            });
+        };
+        const pointerlockchange = () => {
+            if (isMouseLocked()) return;
+            console.log("Showing pause menu because of pointer lock exit");
+            setShow(true);
+        };
+        window.addEventListener("keydown", escListener);
+        document.addEventListener("pointerlockchange", pointerlockchange);
+
+        return () => {
+            window.removeEventListener("keydown", escListener);
+            document.removeEventListener("pointerlockchange", pointerlockchange);
+        };
+    }, []);
+
+    return !show ? null : <PauseRoot>
         <RightCornerInfo />
         {
             buttons.map(({ label, click = () => { } }, index) => {
                 return <MenuPrimaryButton key={label} autoFocus={index === 0}>{label}</MenuPrimaryButton>;
             })
         }
-        <MenuActionOWButton /* tabIndex={-1} */ style={{ position: "absolute", bottom: 30, right: 35 }} data-button="esc">BACK</MenuActionOWButton>
+        <MenuActionOWButton
+            /* tabIndex={-1} */
+            style={{ position: "absolute", bottom: 30, right: 35 }}
+            data-button="esc"
+            onClick={() => {
+                requestPointerLock();
+                setShow(false);
+            }}
+        >BACK</MenuActionOWButton>
     </PauseRoot>;
 };
 

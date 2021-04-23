@@ -4,7 +4,7 @@ import { Vec3 } from "vec3";
 
 import { activeControls } from "./controls.js";
 import { ArrayPoint, Matrix4x4, TrianglePoints } from "./structures.js";
-import { entries, mapVector } from "./util.js";
+import { entries, mapVector, touchSupported } from "./util.js";
 import vec3 from "./vec3.js";
 
 const fNear = 0.1;
@@ -14,7 +14,7 @@ const fFov = 90.0;
 let fAspectRatio = 1;
 const fFovRad = 1.0 / Math.tan(fFov * 0.5 / 180.0 * 3.14159);
 
-const camera = vec3(0, 0, 0);
+const camera = vec3(0, 0, -5);
 
 const getBlockSideCoordinates = (x: number, y: number, z: number) => {
     return [
@@ -238,13 +238,18 @@ document.addEventListener("resize", () => {
     matProj.matrix[0][0] = fAspectRatio * fFovRad;
 });
 let rz = 0, ry = 0;
-document.addEventListener("mousemove", event => {
-    if (!document.pointerLockElement) return;
-    const { movementX: deltaX, movementY: deltaY } = event;
+
+export const rotateCamera = (deltaX: number, deltaY: number) => {
     const delimeter = 500;
     rz -= deltaX / delimeter;
     if (ry - deltaY / delimeter > -1.54 && ry - deltaY / delimeter < 1.54)
         ry -= deltaY / delimeter;
+};
+
+document.addEventListener("mousemove", event => {
+    if (!document.pointerLockElement) return;
+    const { movementX: deltaX, movementY: deltaY } = event;
+    rotateCamera(deltaX, deltaY);
 });
 
 const MOVEMENT_DIVIDER_MIN = 100;
@@ -254,6 +259,19 @@ const moveCamera = (vecAdd: Vec3, subtract: boolean) => {
     mapVector(vecAdd,
         val => val / movementDivider);
     camera[subtract ? "subtract" : "add"](vecAdd);
+};
+
+export const touchMovement = {
+    active: touchSupported,
+    x: 0,
+    z: 0,
+    y: 0
+};
+
+const getMovementData = (): Vector2 => {
+    return touchMovement.active ?
+        { x: touchMovement.x, y: touchMovement.z } :
+        activeControls.movement.query();
 };
 
 export const physicsUpdate = () => {
@@ -272,7 +290,7 @@ export const physicsUpdate = () => {
     }
 
     // todo-high!
-    const movement: Vector2 = activeControls.movement.query();
+    const movement = getMovementData();
     if (movement.y) {
         moveCamera(
             vec3(-Math.sin(rz), 0, Math.cos(rz)),
