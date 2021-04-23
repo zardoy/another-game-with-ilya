@@ -20,6 +20,7 @@ let MouseRawInputSnackbar: React.FC<ComponentProps> = () => {
 
     useEffect(() => {
         (async () => {
+            if (!document.documentElement.requestPointerLock) return;
             setRawInput(
                 await isRawInputSupported()
             );
