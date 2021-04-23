@@ -32,3 +32,7 @@ interface ImportMeta {
         NODE_ENV: "development" | "production";
     };
 }
+
+interface Navigator {
+    standalone: boolean;
+}
