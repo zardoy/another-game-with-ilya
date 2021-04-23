@@ -100,7 +100,7 @@ if (touchSupported) {
             };
         }
         if (target.matches(".touch-movement-button, .touch-movement-area") && activeTouches.movement.id === null) {
-            (document.querySelector(".touch-movement-area") as HTMLElement).style.border = "0.2px solid white";
+            (document.querySelector(".touch-movement-area") as HTMLElement).style.border = "1px solid rgba(255, 255, 255, 0.2)";
             activeTouches.movement.id = newTouch.identifier;
             updateTouch("movement", newTouch);
         }
