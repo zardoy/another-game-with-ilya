@@ -2,7 +2,6 @@ import React from "react";
 
 import _ from "lodash";
 
-import type { Vector2 } from "contro/dist/utils/math";
 interface ComponentProps {
 }
 
@@ -29,7 +28,7 @@ let MobileControls: React.FC<ComponentProps> = () => {
                     return <img
                         key={index}
                         data-index={index}
-                        src="../touch-movement-button.svg"
+                        src="./touch-movement-button.svg"
                         style={{
                             width: size, height: size,
                             position: "absolute",
