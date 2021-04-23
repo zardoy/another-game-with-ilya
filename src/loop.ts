@@ -4,7 +4,7 @@ import { Vec3 } from "vec3";
 
 import { activeControls } from "./controls.js";
 import { ArrayPoint, Matrix4x4, TrianglePoints } from "./structures.js";
-import { entries, mapVector, touchSupported } from "./util.js";
+import { entries, mapVector } from "./util.js";
 import vec3 from "./vec3.js";
 
 const fNear = 0.1;
@@ -262,16 +262,17 @@ const moveCamera = (vecAdd: Vec3, subtract: boolean) => {
 };
 
 export const touchMovement = {
-    active: touchSupported,
     x: 0,
     z: 0,
     y: 0
 };
 
 const getMovementData = (): Vector2 => {
-    return touchMovement.active ?
-        { x: touchMovement.x, y: touchMovement.z } :
-        activeControls.movement.query();
+    const hardwareMovement: Vector2 = activeControls.movement.query();
+    return {
+        x: hardwareMovement.x + touchMovement.x,
+        y: hardwareMovement.y + touchMovement.z,
+    };
 };
 
 export const physicsUpdate = () => {
