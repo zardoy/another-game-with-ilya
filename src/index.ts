@@ -1,5 +1,8 @@
+// todo:
+// - ps4 color targeting players https://thebitlink.github.io/WebHID-DS4/
 // check support for events
 // right top corner - (battery) time
+// mouse sliders for ipad
 import { physicsUpdate, render } from "./loop.js";
 import { createProgram, debug, isMouseLocked, mapVector } from "./util.js";
 import prismarineDiamondSquare from "diamond-square";

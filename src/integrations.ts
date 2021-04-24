@@ -1,5 +1,5 @@
+import { controlsConfig, MovementAction } from "./interface/MobileControls.js";
 import { rotateCamera, touchMovement } from "./loop.js";
-import { CoordinateComponent } from "./structures.js";
 import { debug, entries, isMouseLocked, touchSupported } from "./util.js";
 
 document.addEventListener("pointerlockchange", () => {
@@ -60,14 +60,15 @@ if (touchSupported) {
 
             activeTouches.movement.lastMoveButton = newButton;
             newButton.style.backgroundColor = "red";
-            const movementButtons: Array<[CoordinateComponent, number]> = [
-                ["z", -1],
-                ["x", 1],
-                ["z", 1],
-                ["x", -1]
-            ];
-            const movementAction = movementButtons[buttonIndex];
-            touchMovement[movementAction[0]] = movementAction[1] * pressure;
+            let [, , movementActionRaw] = controlsConfig[buttonIndex];
+            // todo fix ts: if (!Array.isArray(movementAction)) movementAction = [movementAction];
+            // very unstable
+            const movementActions: MovementAction[] = typeof movementActionRaw[0] === "string" ? [movementActionRaw as MovementAction] : movementActionRaw as MovementAction[];
+            for (const action of movementActions) {
+                console.log("Holding!");
+                const [coord, step] = action;
+                touchMovement[coord] = step/* * pressure */;
+            }
         }
     };
     const resetTouch = (key: keyof typeof activeTouches) => {
@@ -113,14 +114,17 @@ if (touchSupported) {
             updateTouch(key, foundTouch);
         }
     });
-    html.addEventListener("touchend", e => {
+    const touchRelease = (e: TouchEvent) => {
         console.log(e.type, e.changedTouches[0].identifier);
+        // todo: do the check on active touches, not realesed
         const removedTouch = e.changedTouches[0];
         for (const [key, { id }] of entries(activeTouches)) {
             if (id !== removedTouch.identifier) continue;
             resetTouch(key);
         }
-    });
+    };
+    html.addEventListener("touchend", touchRelease);
+    html.addEventListener("touchcancel", touchRelease);
 }
 
 export const requestPointerLock = () => {

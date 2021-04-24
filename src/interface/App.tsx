@@ -28,7 +28,8 @@ let App: React.FC<ComponentProps> = () => {
         <Global
             styles={{
                 html: {
-                    userSelect: "none"
+                    userSelect: "none",
+                    WebkitTouchCallout: "none"
                 }
             }}
         />
