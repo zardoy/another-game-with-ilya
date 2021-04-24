@@ -59,7 +59,7 @@ if (touchSupported) {
             if (!isFinite(buttonIndex)) return;
 
             activeTouches.movement.lastMoveButton = newButton;
-            newButton.style.backgroundColor = "red";
+            newButton.style.backgroundColor = "rgba(255, 255, 255, 0.1)";
             let [, , movementActionRaw] = controlsConfig[buttonIndex];
             // todo fix ts: if (!Array.isArray(movementAction)) movementAction = [movementAction];
             // very unstable
@@ -79,7 +79,6 @@ if (touchSupported) {
             };
         } else if (key === "movement") {
             resetLastMovementButton();
-            (document.querySelector(".touch-movement-area") as HTMLElement).style.border = "";
             activeTouches.movement = {
                 id: null,
                 lastMoveButton: null
@@ -101,7 +100,6 @@ if (touchSupported) {
             };
         }
         if (target.matches(".touch-movement-button, .touch-movement-area") && activeTouches.movement.id === null) {
-            (document.querySelector(".touch-movement-area") as HTMLElement).style.border = "1px solid rgba(255, 255, 255, 0.2)";
             activeTouches.movement.id = newTouch.identifier;
             updateTouch("movement", newTouch);
         }
