@@ -70,7 +70,7 @@ let MobileControls: React.FC<ComponentProps> = () => {
                 padding: 5,
                 backgroundColor: "rgba(255, 255, 255, 0.3)"
             }}
-            src="./pause.svg"
+            src="./pause-button.svg"
         />
     </>;
 };
