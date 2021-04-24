@@ -21,7 +21,11 @@ const Background = styled.div`
 
 const PauseRoot = styled.div`
     ${fullScreenFixed}
+    background-color: rgba(0, 0, 0, 0.3);
+    @supports ((-webkit-backdrop-filter: blur(2em)) or (backdrop-filter: blur(2em))) {
     backdrop-filter: blur(3px);
+        background-color: transparent;
+    }
     display: flex;
     flex-direction: column;
     justify-content: center;
