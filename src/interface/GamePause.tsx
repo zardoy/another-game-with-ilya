@@ -3,8 +3,7 @@ import React, { SyntheticEvent, useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import { CSSProperties } from "@material-ui/styles";
 
-import { requestPointerLock } from "../integrations";
-import { isMouseLocked } from "../util";
+import { pointerlock } from "../util";
 import { getRendererName } from "./gameUtil";
 
 const fullScreenFixed = `
@@ -140,25 +139,24 @@ let GamePause: React.FC<ComponentProps> = ({ buttons }) => {
             setShow(show => {
                 const newState = !show;
                 if (!newState) {
-                    // todo-high
                     // special handling for escape key
                     // if we dont add timeout otherwise we would get instant exit from pointer lock
-                    setTimeout(() => requestPointerLock(), 100);
+                    // setTimeout(() => pointerlock.capture(), 100); // this workaround will work only in 50%
+                    // pointerlock.capture(); //TODO-HIGH enable when upstream bug with pointerlock-esc will be fixed
                 }
                 return newState;
             });
         };
-        const pointerlockchange = () => {
-            if (isMouseLocked()) return;
-            console.log("Showing pause menu because of pointer lock exit");
+        const onPointerlockExit = () => {
+            // console.log("Showing pause menu because of pointer lock exit");
             setShow(true);
         };
+        pointerlock.onRelease.push(onPointerlockExit);
         window.addEventListener("keydown", escListener);
-        document.addEventListener("pointerlockchange", pointerlockchange);
 
         return () => {
             window.removeEventListener("keydown", escListener);
-            document.removeEventListener("pointerlockchange", pointerlockchange);
+            pointerlock.removeListener("onRelease", onPointerlockExit);
         };
     }, []);
 
@@ -174,7 +172,7 @@ let GamePause: React.FC<ComponentProps> = ({ buttons }) => {
             style={{ position: "absolute", bottom: 30, right: 35 }}
             data-button="esc"
             onClick={() => {
-                requestPointerLock();
+                pointerlock.capture();
                 setShow(false);
             }}
         >BACK</MenuActionOWButton>

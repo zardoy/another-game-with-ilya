@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { Button, Slide, Snackbar } from "@material-ui/core";
 import { Alert } from "@material-ui/lab";
 
-import { isRawInputSupported } from "./gameUtil";
+import { pointerlock } from "../util";
 
 interface ComponentProps {
 }
@@ -14,23 +14,23 @@ function TransitionDown(props: any) {
 
 const howToEnableRawInputUrl = "https://gist.github.com/zardoy/8325b680c08a396d820986991c54a41e";
 
+type SnackbarState = "notShowed" | boolean | "showed";
+
 let MouseRawInputSnackbar: React.FC<ComponentProps> = () => {
-    const [open, setOpen] = useState(false);
-    const [rawInput, setRawInput] = useState(false);
+    const [snackbarState, setSnackbarState] = useState<SnackbarState>("notShowed");
 
     useEffect(() => {
-        (async () => {
-            if (!document.documentElement.requestPointerLock) return;
-            setRawInput(
-                await isRawInputSupported()
-            );
-            setOpen(true);
-        })();
-    }, []);
+        if (snackbarState !== "notShowed") return;
+        const listener = () => pointerlock.usingRawInput !== null && setSnackbarState(pointerlock.usingRawInput);
+        pointerlock.onCapture.push(listener);
+        return () => {
+            pointerlock.removeListener("onCapture", listener);
+        };
+    }, [snackbarState]);
 
     return <Snackbar
-        open={open}
-        onClose={() => setOpen(false)}
+        open={typeof snackbarState === "boolean"}
+        onClose={() => setSnackbarState("showed")}
         anchorOrigin={{
             vertical: "top",
             horizontal: "right"
@@ -38,9 +38,9 @@ let MouseRawInputSnackbar: React.FC<ComponentProps> = () => {
         TransitionComponent={TransitionDown}
         autoHideDuration={4000}
     >
-        <Alert severity={rawInput ? "success" : "warning"}>
-            Mouse Raw Input {rawInput ? "enabled" : "needs to be enabled!"}
-            {!rawInput && <Button color="primary" size="small" component="a" target="_blank" href={howToEnableRawInputUrl}>MORE INFO</Button>}
+        <Alert severity={snackbarState ? "success" : "warning"}>
+            Mouse Raw Input {snackbarState ? "enabled" : "needs to be enabled!"}
+            {!snackbarState && <Button color="primary" size="small" component="a" target="_blank" href={howToEnableRawInputUrl}>MORE INFO</Button>}
         </Alert>
     </Snackbar>;
 };

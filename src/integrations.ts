@@ -1,13 +1,7 @@
-import { rotateCamera } from "./loop.js";
-import { debug, isMouseLocked, touchSupported } from "./util.js";
+// INTEGRATIONS WITH USER INPUT (KEYBOARD MOUSE ETC)
 
-document.addEventListener("pointerlockchange", () => {
-    if (isMouseLocked()) {
-        debug("Lock captured");
-    } else {
-        debug("Lock released");
-    }
-});
+import { rotateCamera } from "./loop.js";
+import { pointerlock, touchSupported } from "./util.js";
 
 if (touchSupported) {
     // CAMERA ROTATION
@@ -41,14 +35,17 @@ if (touchSupported) {
     });
 }
 
-export const requestPointerLock = () => {
-    if (!document.documentElement.requestPointerLock) return;
-    //@ts-ignore;
-    const usingRawInput = !!document.documentElement.requestPointerLock({
-        unadjustedMovement: true
-    });
-};
+window.addEventListener("keydown", e => {
+    if (
+        (e.code === "KeyS" && e.ctrlKey) ||
+        // prevent scrolling the page
+        e.code === "Space" ||
+        e.code.startsWith("Arrow")
+    ) {
+        e.preventDefault();
+    }
+});
 
 canvas.addEventListener("click", () => {
-    requestPointerLock();
+    pointerlock.capture();
 });

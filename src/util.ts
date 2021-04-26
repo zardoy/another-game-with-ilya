@@ -3,8 +3,6 @@ import { Vec3 } from "vec3";
 import { ArrayPoint, CoordinateComponent } from "./structures.js";
 import vec3 from "./vec3.js";
 
-export const isMouseLocked = () => !!document.pointerLockElement;
-
 export const touchSupported = ('ontouchstart' in window) ||
     (navigator.maxTouchPoints > 0) ||
     (navigator.msMaxTouchPoints > 0);
@@ -18,6 +16,41 @@ export const mapVector = (vector: Vec3, callback: (value: number, index: 0 | 1 |
         vec3(...newArray)
     );
 };
+
+type PointerLockListener = (e: Event) => unknown;
+// use alternative to Node.js event class
+export const pointerlock = {
+    usingRawInput: null as boolean | null,
+    get captured(): boolean {
+        return !!document.pointerLockElement;
+    },
+    capture() {
+        if (!document.documentElement.requestPointerLock) return;
+        //@ts-ignore
+        const usingRawInput = !!document.documentElement.requestPointerLock({
+            unadjustedMovement: true
+        });
+        pointerlock.usingRawInput = usingRawInput;
+        return usingRawInput;
+    },
+    onRelease: [] as PointerLockListener[],
+    onCapture: [] as PointerLockListener[],
+    stopFiring: false,
+    removeListener: (type: "onRelease" | "onCapture", listener: PointerLockListener) => {
+        const indexToRemove = pointerlock[type].indexOf(listener);
+        if (indexToRemove < 0) throw new TypeError(`Listener ${listener} on type ${type} doesn't exist`);
+        pointerlock[type].splice(indexToRemove, 1);
+    }
+};
+{
+    document.addEventListener("pointerlockchange", e => {
+        if (pointerlock.stopFiring) return;
+        const { captured } = pointerlock;
+        debug(`Lock ${captured ? "captured" : "released"}`);
+        const eventsToFire = captured ? pointerlock.onCapture : pointerlock.onRelease;
+        eventsToFire.forEach(callback => callback(e));
+    });
+}
 
 export const debug = (str: string) => {
     console.log(str);
@@ -33,7 +66,7 @@ export const keys = <T extends object>(obj: T): (keyof T)[] => {
 
 export const createProgram = (gl: WebGL2RenderingContext, vertexShader: string, fragmentShader: string) => {
     const createShader = (gl: WebGL2RenderingContext, type: number, source: string) => {
-        const shader = gl.createShader(type);
+        const shader = gl.createShader(type)!;
         gl.shaderSource(shader, source);
         gl.compileShader(shader);
         const success = gl.getShaderParameter(shader, gl.COMPILE_STATUS);
@@ -45,10 +78,10 @@ export const createProgram = (gl: WebGL2RenderingContext, vertexShader: string, 
         return shader;
     };
 
-    const program = gl.createProgram();
+    const program = gl.createProgram()!;
     // просто добавляем шейдеры они пока не знают друг о друга
-    gl.attachShader(program, createShader(gl, gl.VERTEX_SHADER, vertexShader));
-    gl.attachShader(program, createShader(gl, gl.FRAGMENT_SHADER, fragmentShader));
+    gl.attachShader(program, createShader(gl, gl.VERTEX_SHADER, vertexShader)!);
+    gl.attachShader(program, createShader(gl, gl.FRAGMENT_SHADER, fragmentShader)!);
     // сопрягаем уже
     gl.linkProgram(program);
     const linkSuccess = gl.getProgramParameter(program, gl.LINK_STATUS);

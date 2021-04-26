@@ -4,7 +4,7 @@
 // right top corner - (battery) time
 // mouse sliders for ipad
 import { physicsUpdate, render } from "./loop.js";
-import { createProgram, debug, isMouseLocked, mapVector } from "./util.js";
+import { createProgram } from "./util.js";
 import prismarineDiamondSquare from "diamond-square";
 import vec3 from "./vec3";
 import "./integrations.js";
@@ -39,7 +39,7 @@ const resize = () => {
         canvas.height = window.innerHeight;
     }
 
-    document.getElementById("resolution").innerText = `${canvas.width} X ${canvas.height}`;
+    document.getElementById("resolution")!.innerText = `${canvas.width} X ${canvas.height}`;
 };
 resize();
 window.addEventListener("resize", resize);
