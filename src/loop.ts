@@ -29,7 +29,7 @@ type BlockSide =
     | "top" | "bottom";
 
 class Triangle {
-    static setNormal(triangle: Triangle) {
+    static getNormal(triangle: Triangle) {
         const line1 = vec3(
             triangle.points[1].x - triangle.points[0].x,
             triangle.points[1].y - triangle.points[0].y,
@@ -48,15 +48,13 @@ class Triangle {
 
         // It's normally normal to normalise the normal
         normal.normalize();
-        triangle.normal = normal;
+        return normal;
     };
 
-    public normal: Vec3;
+    public normal = Triangle.getNormal(this);
     constructor(
         public points: TrianglePoints,
-    ) {
-        Triangle.setNormal(this);
-    }
+    ) { }
 }
 
 const blockSideToCoordinateMap: Record<BlockSide, ["x" | "y" | "z", 1 | -1]> = {
@@ -146,14 +144,14 @@ class Chunk {
     ) { }
 }
 
-const triangleToClip = (buf: Triangle) => {
-    var count = 0;
-    for (const i in buf) {
-        if (buf[i][0] * buf[i][0] > 1 || buf[i][1] * buf[i][1] > 1)
-            count++;
-    }
-    return count;
-};
+// const triangleToClip = (buf: Triangle) => {
+//     var count = 0;
+//     for (const i in buf) {
+//         if (buf[i][0] * buf[i][0] > 1 || buf[i][1] * buf[i][1] > 1)
+//             count++;
+//     }
+//     return count;
+// };
 
 const multipleMatrix = (vector: Vec3, { matrix }: Matrix4x4) => {
     mapVector(vector, (value, i) => {
@@ -270,20 +268,20 @@ export const touchMovement = {
 const getMovementData = (): Vector2 => {
     const hardwareMovement: Vector2 = activeControls.movement.query();
     return {
-        x: hardwareMovement.x + touchMovement.x,
-        y: hardwareMovement.y + touchMovement.z,
+        x: _.clamp(hardwareMovement.x + touchMovement.x, -1, 1),
+        y: _.clamp(hardwareMovement.y + touchMovement.z, -1, 1),
     };
 };
 
 export const physicsUpdate = () => {
     // key engine from phaser
-    if (activeControls.jump.query()) {
+    if (activeControls.jump.query() || touchMovement.y === 1) {
         moveCamera(
             vec3(0, 1, 0),
             false
         );
     }
-    if (activeControls.crouch.query()) {
+    if (activeControls.crouch.query() || touchMovement.y === -1) {
         moveCamera(
             vec3(0, -1, 0),
             false
@@ -379,5 +377,5 @@ export const render = (gl: WebGL2RenderingContext, shaderProgram: WebGLProgram) 
         }
     }
     drawCrosshair(gl);
-    document.getElementById("triangles").innerText = drawedTriangles.toString();
+    document.getElementById("triangles")!.innerText = drawedTriangles.toString();
 };

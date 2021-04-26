@@ -5,6 +5,7 @@ declare module "lodash" {
     export const mapValues: <T extends object, K extends (value: T[keyof T]) => any>(obj: T, mapFn: K) =>
         Record<keyof T, ReturnType<K>>;
     export const without: <T extends any[]>(arr: T, value: T[number]) => T;
+    export const clamp: (number: number, lower: number, upper?: number) => number;
 }
 
 // fix for chromium browsers
@@ -27,7 +28,6 @@ interface Gamepad {
 
 // todo: fix snowpack
 interface ImportMeta {
-    hot: any;
     env: {
         NODE_ENV: "development" | "production";
     };

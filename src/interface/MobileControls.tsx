@@ -3,12 +3,20 @@ import React from "react";
 import clsx from "clsx";
 import _ from "lodash";
 
+import styled from "@emotion/styled";
 import { makeStyles, Theme } from "@material-ui/core";
 
-import { CoordinateComponent } from "../structures";
+import { touchMovement } from "../loop";
 
+import type { CoordinateComponent } from "../structures";
 interface ComponentProps {
 }
+
+const buttonImagesPath = {
+    arrow: "./touch-movement-button.svg",
+    circle: "./touch-circle.svg",
+    pause: "./pause-button.svg"
+};
 
 const controlsSize = 50,
     pauseButtonSize = 45;
@@ -50,10 +58,78 @@ const useStyles = makeStyles<Theme, StyleProps>({
     }),
 });
 
+const _TouchMovementButtonStyled = styled.div``;
+
+type TouchMovementButtonProps = {
+    size: number;
+    imageSrc?: string;
+} & Record<"startMoving" | "stopMoving", (event: React.PointerEvent<HTMLDivElement>) => unknown>;
+
+const TouchMovementButton: React.FC<TouchMovementButtonProps & React.ComponentProps<"div">> = ({ children, size, className = "", style = {}, imageSrc, startMoving, stopMoving, ...divProps }) => {
+
+    return <_TouchMovementButtonStyled
+        className={clsx("touch-movement-button", className)}
+        onPointerDown={e => {
+            e.currentTarget.releasePointerCapture(e.pointerId);
+        }}
+        onPointerOver={e => {
+            e.currentTarget.style.backgroundColor = "rgba(255, 255, 255, 0.1)";
+            startMoving(e);
+        }}
+        onPointerOut={e => {
+            e.currentTarget.style.backgroundColor = "";
+            stopMoving(e);
+        }}
+        onPointerCancel={e => {
+            e.currentTarget.style.backgroundColor = "";
+            stopMoving(e);
+        }}
+        style={{
+            width: size, height: size, ...style
+        }}
+        {...divProps}
+    >{imageSrc && <img src={imageSrc} style={{ pointerEvents: "none", width: "100%", height: "100%" }} />}{children}</_TouchMovementButtonStyled>;
+};
+
+// IOS safari bug: select element dev feature fires touch/pointer events and doesn't fire cancel/end event! So, it's posiible to accomplish the state where app thinks that user holds button but he's actually not!
+// there is no workaround for this now.
+
 let MobileControls: React.FC<ComponentProps> = () => {
     const classes = useStyles({ controlsSize });
 
-    return <>
+    const startMoving = (buttonIndex: number) => {
+        // todo: use ??
+        // @ts-ignore
+        // const pressure = touch.force || touch.pressure || touch.webkitForce || 1;
+        // if (interval) clearInterval(interval);
+        // interval = setInterval(() => console.log(event.pressure), 500);
+        let [, , movementActionRaw] = controlsConfig[buttonIndex];
+        // todo fix ts: if (!Array.isArray(movementAction)) movementAction = [movementAction];
+        // very unstable
+        const movementActions: MovementAction[] = typeof movementActionRaw[0] === "string" ? [movementActionRaw as MovementAction] : movementActionRaw as MovementAction[];
+        for (const action of movementActions) {
+            const [coord, step] = action;
+            touchMovement[coord] += step/* * pressure */;
+        }
+    };
+    const stopMoving = (buttonIndex: number) => {
+        console.log("Stop!");
+
+        let [, , movementActionRaw] = controlsConfig[buttonIndex];
+        // todo: fix 45deg buttons multiple holding
+        const movementActions: MovementAction[] = typeof movementActionRaw[0] === "string" ? [movementActionRaw as MovementAction] : movementActionRaw as MovementAction[];
+        for (const action of movementActions) {
+            const [coord, step] = action;
+            touchMovement[coord] -= step;
+        }
+    };
+
+    return <div
+    // todo doesn't work
+    // onPointerOver={e => {
+    //     (e.target as HTMLElement).releasePointerCapture(e.pointerId);
+    // }}
+    >
         <div
             className={clsx(classes.touchMovementArea, "touch-movement-area")}
         >
@@ -74,20 +150,23 @@ let MobileControls: React.FC<ComponentProps> = () => {
                         //VSCODE!!! AUTOCOMPLETION FOR ARRAY ITEM LABELS!
                         const [label, rotate] = controlsConfig[index];
 
-                        return <div
+                        return <TouchMovementButton
                             key={label}
-                            data-index={index}
+                            startMoving={e => startMoving(index)}
+                            stopMoving={e => stopMoving(index)}
+                            size={controlsSize}
                             style={{
-                                gridArea: label,
-                                transform: `rotate(${rotate}deg)`,
-                                width: controlsSize,
-                                height: controlsSize
-                                // border: "1px solid rgba(255, 255, 255, 0.3)"
+                                gridArea: label
                             }}
-                            className="touch-movement-button"
                         >
-                            <img src="./touch-movement-button.svg" style={{ pointerEvents: "none" }} />
-                        </div>;
+                            <img
+                                src={buttonImagesPath.arrow}
+                                style={{
+                                    transform: `rotate(${rotate}deg)`,
+                                    pointerEvents: "none"
+                                }}
+                            />
+                        </TouchMovementButton>;
                     })
                 }
             </div>
@@ -107,9 +186,45 @@ let MobileControls: React.FC<ComponentProps> = () => {
                 padding: 5,
                 backgroundColor: "rgba(255, 255, 255, 0.1)",
             }}
-            src="./pause-button.svg"
+            src={buttonImagesPath.pause}
         />
-    </>;
+        <div
+            style={{
+                position: "fixed",
+                bottom: controlsSize + 20,
+                right: 50,
+                display: "flex",
+                flexDirection: "column"
+            }}
+        >
+            <TouchMovementButton
+                imageSrc={buttonImagesPath.arrow}
+                size={controlsSize}
+                startMoving={() => {
+                    touchMovement.y += 1;
+                }}
+                stopMoving={() => {
+                    touchMovement.y -= 1;
+                }}
+            />
+            <img
+                src={buttonImagesPath.circle}
+                onPointerOver={e => e.currentTarget.releasePointerCapture(e.pointerId)}
+                style={{ width: controlsSize, height: controlsSize }}
+            />
+            <TouchMovementButton
+                imageSrc={buttonImagesPath.arrow}
+                size={controlsSize}
+                style={{ transform: "rotate(180deg)" }}
+                startMoving={() => {
+                    touchMovement.y -= 1;
+                }}
+                stopMoving={() => {
+                    touchMovement.y += 1;
+                }}
+            />
+        </div>
+    </div>;
 };
 
 export default MobileControls;
