@@ -7,7 +7,7 @@
         ],
         "jsx": "react-jsx",
         "moduleResolution": "node",
-        "strict": true,
+        "strict": false,
         "module": "ESNext",
         "noEmit": true,
         "allowSyntheticDefaultImports": true
