@@ -11,8 +11,9 @@
         "module": "ESNext",
         "incremental": true,
         "outDir": "dist",
-        "noEmitOnError": false,
-        "allowSyntheticDefaultImports": true
+        "noEmit": true,
+        "allowSyntheticDefaultImports": true,
+        "importsNotUsedAsValues": "error"
     },
     "include": [
         "src"
