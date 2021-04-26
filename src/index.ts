@@ -55,7 +55,7 @@ window.addEventListener("resize", resize);
 const gl = canvas.getContext("webgl2");
 
 if (!gl) {
-    throw new Error("WebGL 2 isn't supported on your platform. Probably you could enable it manually");
+    throw new Error("WebGL 2 isn't supported on your platform. Probably you can enable it manually");
 }
 
 // SHADERS
