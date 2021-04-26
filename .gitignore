@@ -3,6 +3,8 @@ dist
 build
 *.cpp
 
+/src/test.html
+
 .eslintcache
 
 .DS_Store
