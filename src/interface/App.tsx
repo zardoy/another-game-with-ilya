@@ -29,7 +29,8 @@ let App: React.FC<ComponentProps> = () => {
             styles={{
                 html: {
                     userSelect: "none",
-                    WebkitTouchCallout: "none"
+                    WebkitTouchCallout: "none",
+                    touchAction: "none"
                 }
             }}
         />
