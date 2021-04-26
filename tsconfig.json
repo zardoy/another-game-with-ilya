@@ -7,10 +7,9 @@
         ],
         "jsx": "react-jsx",
         "moduleResolution": "node",
+        // todo switch to true
         "strict": false,
         "module": "ESNext",
-        "incremental": true,
-        "outDir": "dist",
         "noEmit": true,
         "allowSyntheticDefaultImports": true,
         "importsNotUsedAsValues": "error"
