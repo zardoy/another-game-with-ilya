@@ -1,6 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
-
-
+import React, { useCallback, useEffect, useRef, useState } from "react";
 
 export const releasePointerCapture = (e: React.PointerEvent) => {
     e.preventDefault();
@@ -12,8 +10,7 @@ export const releasePointerCapture = (e: React.PointerEvent) => {
 type HookParams = {
     startTouching?: (e: React.PointerEvent<HTMLElement>) => unknown;
     stopTouching?: (e?: React.PointerEvent<HTMLElement>) => unknown;
-    stateToggle?: (newState: boolean) => unknown;
-    tag?: string;
+    updateTouching?: (newState: boolean) => unknown;
 };
 
 type Event = React.PointerEvent<HTMLElement>;
@@ -27,13 +24,12 @@ export const useFixedPointerEvents = (props: HookParams):
     const [touching, setTouching] = useState(false);
 
     const toggleIsTouching = useCallback(((newState, event) => {
-        console.log(event?.type, event?.target);
         if (touching === newState) return;
         const relatedTarget = event?.relatedTarget as HTMLElement;
         if (event && event.type === "pointerout" && relatedTarget?.parentElement === event.currentTarget) return;
-        const { stateToggle, startTouching, stopTouching } = props;
+        const { updateTouching, startTouching, stopTouching } = props;
         setTouching(newState);
-        stateToggle?.(newState);
+        updateTouching?.(newState);
         (newState ? startTouching : stopTouching)?.(event!);
     }) as ToggleIsTouching, [touching, props]);
 
@@ -56,13 +52,34 @@ export const useFixedPointerEvents = (props: HookParams):
     return [
         {
             onPointerDown: releasePointerCapture,
-            onPointerOver: toggleIsTouching.bind(null, true),
-            onPointerOut: toggleIsTouching.bind(null, false),
+            onPointerOver: e => toggleIsTouching(true, e),
+            onPointerOut: e => toggleIsTouching(false, e),
             // report 20+ bugs where this event isn't firing for some reason
-            onPointerCancel: toggleIsTouching.bind(null, false),
+            onPointerCancel: e => toggleIsTouching(false, e),
             // for tablets on windows
             onContextMenu: e => e.preventDefault()
         },
         touching
     ];
 };
+
+
+export const useInterval = (callback: () => unknown, delay?: number) => {
+    const savedCallback = useRef(callback);
+
+    // Remember the latest callback if it changes.
+    useEffect(() => {
+        savedCallback.current = callback;
+    }, [callback]);
+
+    // Set up the interval.
+    useEffect(() => {
+        // Don't schedule if no delay is specified.
+        if (delay === null) return;
+
+        const id = setInterval(() => savedCallback.current(), delay);
+
+        return () => clearInterval(id);
+    }, [delay]);
+};
+

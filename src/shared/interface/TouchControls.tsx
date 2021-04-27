@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 
 import clsx from "clsx";
 import _ from "lodash";
@@ -6,20 +6,22 @@ import _ from "lodash";
 import { css } from "@emotion/css";
 import { makeStyles, Theme } from "@material-ui/core";
 
-import TouchMovementButton from "../components/TouchMovementButton";
-import { touchMovement } from "../loop";
+import TouchMovementButton from "../../components/TouchMovementButton";
 import { releasePointerCapture, useFixedPointerEvents } from "../react-util";
 import { touchSupported } from "../util";
 
 import type { CoordinateComponent } from "../structures";
+
+export type Vec3Temp = Record<CoordinateComponent, number>;
+
 interface ComponentProps {
-    // moveCallback() { }
+    updateTouchMoving?: (vec: Vec3Temp) => unknown;
 }
 
 const buttonImagesPath = {
-    arrow: "./touch-movement-button.svg",
-    circle: "./touch-circle.svg",
-    pause: "./pause-button.svg"
+    arrow: "../assets/touch-movement-button.svg",
+    circle: "../assets/touch-circle.svg",
+    pause: "../assets/pause-button.svg"
 };
 
 export const touchControlsSize = 50;
@@ -35,6 +37,8 @@ type ControlsConfig = Array<[
     rotate: number,
     movementAction: MovementAction | MovementAction[]
 ]>;
+
+// REFACTOR WITH PRESSURE MAP
 
 // VSCODE!!! SHOW ARRAY ITEM LABEL ON HOVER!!!!!!!!!!
 export const controlsConfig: ControlsConfig = [
@@ -65,38 +69,33 @@ const useStyles = makeStyles<Theme, StyleProps>({
 // IOS safari bug: select element dev feature fires touch/pointer events and doesn't fire cancel/end event! So, it's posiible to accomplish the state where app thinks that user holds button but he's actually not!
 // there is no workaround for this now.
 
-let MobileControls: React.FC<ComponentProps> = () => {
+let TouchControls: React.FC<ComponentProps> = ({ updateTouchMoving }) => {
+    const movementRef = useRef<Vec3Temp>({ x: 0, y: 0, z: 0 });
+
     const classes = useStyles({ controlsSize: touchControlsSize });
 
     const [showYButtons, setShowYButtons] = useState(true);
     const [showForwardAuxButtons, setShowForwardAuxButtons] = useState(true);
 
-    const startMoving = (buttonIndex: number) => {
-        if (buttonIndex === 1) setShowForwardAuxButtons(true);
-        // todo: use ??
-        // @ts-ignore
-        // const pressure = touch.force || touch.pressure || touch.webkitForce || 1;
-        // if (interval) clearInterval(interval);
-        // interval = setInterval(() => console.log(event.pressure), 500);
-        let [, , movementActionRaw] = controlsConfig[buttonIndex];
-        // todo fix ts: if (!Array.isArray(movementAction)) movementAction = [movementAction];
-        // very unstable
-        const movementActions: MovementAction[] = typeof movementActionRaw[0] === "string" ? [movementActionRaw as MovementAction] : movementActionRaw as MovementAction[];
+    const updateMoving = (newState: boolean, buttonIndexOrActions: number | MovementAction[]) => {
+        let movementActions: MovementAction[];
+        if (typeof buttonIndexOrActions === "number") {
+            let [, , movementActionRaw] = controlsConfig[buttonIndexOrActions];
+            // unstable
+            movementActions = typeof movementActionRaw[0] === "string" ? [movementActionRaw as MovementAction] : movementActionRaw as MovementAction[];
+        } else {
+            movementActions = buttonIndexOrActions;
+        }
+
         for (const action of movementActions) {
             const [coord, step] = action;
-            touchMovement[coord] += step/* * pressure */;
+            movementRef.current[coord] += step * (newState ? 1 : -1);
         }
+
+        updateTouchMoving?.({ ...movementRef.current });
     };
-    const stopMoving = (buttonIndex: number) => {
-        let [, , movementActionRaw] = controlsConfig[buttonIndex];
-        // todo: fix 45deg buttons multiple holding
-        const movementActions: MovementAction[] = typeof movementActionRaw[0] === "string" ? [movementActionRaw as MovementAction] : movementActionRaw as MovementAction[];
-        for (const action of movementActions) {
-            const [coord, step] = action;
-            touchMovement[coord] -= step;
-        }
-        // if (touchMovement.z !== -1) setShowForwardAuxButtons(false);
-    };
+
+    // todo fix ts: if (!Array.isArray(movementAction)) movementAction = [movementAction];
 
     const [yControlsContainerEvents] = useFixedPointerEvents({ /* stateToggle: setShowYButtons */ });
 
@@ -105,6 +104,12 @@ let MobileControls: React.FC<ComponentProps> = () => {
     // watch for css selector!!!!!!!!
     return !touchSupported ? null : <div
         onPointerDown={releasePointerCapture}
+        className={css`
+            z-index: 5;
+            & > * {
+                z-index: 5;
+            }
+        `}
     >
         <div
             className={clsx(classes.touchMovementArea, "touch-movement-area")}
@@ -128,8 +133,7 @@ let MobileControls: React.FC<ComponentProps> = () => {
 
                         return (Math.abs(rotate) !== 45 || showForwardAuxButtons) && <TouchMovementButton
                             key={label}
-                            startTouching={() => startMoving(index)}
-                            stopTouching={() => stopMoving(index)}
+                            updateTouching={moving => updateMoving(moving, index)}
                             DivProps={{
                                 style: {
                                     border: Math.abs(rotate) !== 45 ? "1px solid rgba(255, 255, 255, 0.2)" : "",
@@ -181,12 +185,10 @@ let MobileControls: React.FC<ComponentProps> = () => {
                             className: css`
                                 transform: ${index === 1 ? "rotate(180deg)" : ""};
                                 order: ${!index ? 0 : 2};
-                            `,
-                            title: yStep + ""
+                            `
                         }}
                         imageSrc={buttonImagesPath.arrow}
-                        startTouching={() => touchMovement.y += yStep}
-                        stopTouching={() => touchMovement.y -= yStep}
+                        updateTouching={moving => updateMoving(moving, [["y", yStep]])}
                     />;
                 })
             }
@@ -203,12 +205,15 @@ let MobileControls: React.FC<ComponentProps> = () => {
                     width: 100%;
                     height: ${touchControlsSize / 1.5}px;
                     display: flex;
+                    /* TODO!!! */
+                    pointer-events: none;
                     justify-content: center;
                 `}
             >
                 {
                     _.times(9, (index) => {
                         return <div
+                            key={index}
                             className={css`
                                 width: ${touchControlsSize / 1.5}px;
                                 height: 100%;
@@ -223,4 +228,4 @@ let MobileControls: React.FC<ComponentProps> = () => {
     </div>;
 };
 
-export default MobileControls;
+export default TouchControls;

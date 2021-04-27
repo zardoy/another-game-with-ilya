@@ -4,8 +4,8 @@ import clsx from "clsx";
 
 import { makeStyles } from "@material-ui/core";
 
-import { touchControlsSize } from "../interface/MobileControls";
-import { useFixedPointerEvents } from "../react-util";
+import { touchControlsSize } from "../shared/interface/TouchControls";
+import { useFixedPointerEvents } from "../shared/react-util";
 
 type ComponentProps = {
     size?: number;
@@ -13,7 +13,7 @@ type ComponentProps = {
     borderOnTouch?: boolean;
     DivProps?: React.ComponentProps<"div">;
 }
-    & Pick<Parameters<typeof useFixedPointerEvents>[0], "startTouching" | "stopTouching">
+    & Parameters<typeof useFixedPointerEvents>[0]
     & ({} | {
         imageSrc: string;
         ImgProps?: React.ComponentProps<"img">;
@@ -34,7 +34,7 @@ let TouchMovementButton: React.FC<ComponentProps> = ({
     ...restProps
 }) => {
     const classes = useStyles();
-    const [pointerEvents, touching] = useFixedPointerEvents({ ...restProps, tag: DivProps?.title });
+    const [pointerEvents, touching] = useFixedPointerEvents({ ...restProps });
 
     return <div
         {...DivProps}

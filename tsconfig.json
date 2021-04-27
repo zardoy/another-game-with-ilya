@@ -5,6 +5,7 @@
             "ES2020",
             "DOM"
         ],
+        "skipLibCheck": true,
         "jsx": "react-jsx",
         "moduleResolution": "node",
         "strict": true,

@@ -1,7 +1,11 @@
+import type { Vector2 } from "contro/dist/utils/math";
+import _ from "lodash";
 import { Vec3 } from "vec3";
 
-import { ArrayPoint, CoordinateComponent } from "./structures.js";
-import vec3 from "./vec3.js";
+import { Vec3Temp } from "./interface/TouchControls";
+import { activeControls } from "./movementControl";
+import { ArrayPoint, CoordinateComponent } from "./structures";
+import vec3 from "./vec3";
 
 export const touchSupported = ('ontouchstart' in window) ||
     (navigator.maxTouchPoints > 0) ||
@@ -18,6 +22,9 @@ export const mapVector = (vector: Vec3, callback: (value: number, index: 0 | 1 |
 };
 
 type PointerLockListener = (e: Event) => unknown;
+// POINTER LOCK API WAS ALWAYS ACTUALLY ASYNC A LOT OF BUGS!! (and exitPointerLock as well)!!!
+// IM NOT ABLE TO CHECK WHETHER RAW INPUT IS ENABLED ON PAGE LOAD BECAUSE OF BUGS
+
 // use alternative to Node.js event class
 export const pointerlock = {
     usingRawInput: null as boolean | null,
@@ -42,6 +49,17 @@ export const pointerlock = {
         pointerlock[type].splice(indexToRemove, 1);
     }
 };
+// https://browserleaks.com/webgl
+// implementation from https://bit.ly/3s1Rz8z
+// todo handle errors
+export const getRendererName = () => {
+    const gl = document.createElement("canvas").getContext("webgl");
+    if (!gl) throw new Error("Webgl is disabled or unsupported");
+    const debugInfo = gl.getExtension("WEBGL_debug_renderer_info");
+    if (!debugInfo) throw new Error("no WEBGL_debug_renderer_info");
+    const renderer = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL);
+    return renderer;
+};
 {
     document.addEventListener("pointerlockchange", e => {
         if (pointerlock.stopFiring) return;
@@ -51,6 +69,21 @@ export const pointerlock = {
         eventsToFire.forEach(callback => callback(e));
     });
 }
+
+export const getActiveMovement = ({ touchMovement }: { touchMovement: Vec3Temp; }): Vec3Temp => {
+    const hardwareMovementRaw: Vector2 = activeControls.movement.query();
+    const movement: Vec3Temp = {
+        x: hardwareMovementRaw.x,
+        y: activeControls.crouch.query() ? -1 : activeControls.jump.query() ? 1 : 0,
+        z: hardwareMovementRaw.y
+    };
+    console.log(movement);
+    for (const [coord] of entries(movement)) {
+        // add touch movement and normalize it
+        movement[coord] = _.clamp(touchMovement[coord] + movement[coord], -1, 1);
+    }
+    return movement;
+};
 
 export const debug = (str: string) => {
     console.log(str);

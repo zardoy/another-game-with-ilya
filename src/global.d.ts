@@ -1,4 +1,11 @@
-declare const canvas: HTMLCanvasElement;
+// todo:
+// - ps4 color targeting players https://thebitlink.github.io/WebHID-DS4/
+// check support for events
+// right top corner - (battery) time
+// mouse sliders for ipad
+
+// GLOBAL CANVAS, PLEASE!
+
 declare module "lodash" {
     export const chunk: <T extends any[]>(arr: T, chunkSize: number) => T;
     export const times: <T>(count: number, callback: (index: number) => T) => T[];

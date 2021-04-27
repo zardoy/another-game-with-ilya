@@ -11,17 +11,25 @@ let GlobalStyles: React.FC<ComponentProps> = () => {
         <CssBaseline />
         <Global
             styles={{
+                "html, #root": {
+                    height: "100vh"
+                },
                 html: {
                     overflow: "hidden",
                     userSelect: "none",
+                    // TODO: restore where necessary
                     WebkitTouchCallout: "none",
-                    touchAction: "none"
+                    touchAction: "none",
                 },
                 body: {
-                    overflow: "none",
+                    overflow: "hidden",
                 },
                 canvas: {
-                    overflow: "none",
+                    position: "fixed",
+                    left: 0,
+                    top: 0,
+                    overflow: "hidden",
+                    width: "100%",
                     height: "100vh"
                 }
             }}

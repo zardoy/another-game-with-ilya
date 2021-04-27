@@ -1,6 +1,10 @@
 import { Gamepad, Keyboard, or as controlsOr } from "contro";
 import _ from "lodash";
 
+interface Config {
+}
+
+// export const getKeyboardOrJoystickMovementContol = ({ }: Config) => {
 const keyboard = new Keyboard();
 const gamepad = new Gamepad();
 
@@ -10,7 +14,7 @@ const defaultControls = {
         inventory: "E LB",
         crouch: "Shift B",
         // todo fix joystick button (undefined values)
-        slowDown: "Control B"
+        // slowDown: "Control B"
     },
     special: {
         directionalKeys: keyboard.directionalKeys("wasd")
@@ -22,7 +26,7 @@ export const activeControls = {
         const [keyboardKey, gamepadButton] = val.split(" ");
         return controlsOr(
             keyboard.key(keyboardKey),
-            gamepadButton ? gamepad.button(gamepadButton) : undefined
+            gamepad.button(gamepadButton)
         );
     })),
     ...{
@@ -32,3 +36,6 @@ export const activeControls = {
         )
     }
 };
+
+//     return activeControls;
+// };

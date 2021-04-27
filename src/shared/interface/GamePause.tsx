@@ -1,12 +1,11 @@
-import React, { SyntheticEvent, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import useTypedEventListener from "use-typed-event-listener";
 
 import styled from "@emotion/styled";
 import { CSSProperties } from "@material-ui/styles";
 
-import { pointerlock } from "../util";
-import { getRendererName } from "./gameUtil";
+import { getRendererName, pointerlock } from "../util";
 
 const fullScreenFixed = `
     position: fixed;
@@ -14,10 +13,6 @@ const fullScreenFixed = `
     left: 0;
     right: 0;
     bottom: 0;
-`;
-
-const Background = styled.div`
-    ${fullScreenFixed}
 `;
 
 const PauseRoot = styled.div`
@@ -128,7 +123,7 @@ type ButtonAction = `open-ui-${"settings"}`;
 interface ComponentProps {
     buttons: {
         label: string;
-        click?: (event: SyntheticEvent<MouseEvent>) => unknown | ButtonAction;
+        click?: (event: React.MouseEvent<HTMLElement>) => unknown | ButtonAction;
     }[];
 }
 
@@ -165,7 +160,7 @@ let GamePause: React.FC<ComponentProps> = ({ buttons }) => {
         <RightCornerInfo />
         {
             buttons.map(({ label, click = () => { } }, index) => {
-                return <MenuPrimaryButton key={label} autoFocus={index === 0}>{label}</MenuPrimaryButton>;
+                return <MenuPrimaryButton key={label} autoFocus={index === 0} onClick={click}>{label}</MenuPrimaryButton>;
             })
         }
         <MenuActionOWButton
