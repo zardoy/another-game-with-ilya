@@ -3,7 +3,10 @@
 
 /** @type {import("snowpack").SnowpackUserConfig } */
 module.exports = {
-  mount: {
-    src: { url: "/" }
-  },
+    mount: {
+        src: { url: "/" }
+    },
+    devOptions: {
+        port: 6000
+    }
 };
