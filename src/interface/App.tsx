@@ -1,9 +1,9 @@
-import React, { useMemo, useState } from "react";
+import React from "react";
 
-import { Global } from "@emotion/react";
-import { createMuiTheme, CssBaseline, ThemeProvider } from "@material-ui/core";
 
-import { touchSupported } from "../util";
+
+import GlobalStyles from "../components/GlobalStyles";
+import MyThemeProvider from "../components/MyThemeProvider";
 import GamePause from "./GamePause";
 import MobileControls from "./MobileControls";
 import MouseRawInputSnackbar from "./MouseRawInputSnackbar";
@@ -11,49 +11,30 @@ import MouseRawInputSnackbar from "./MouseRawInputSnackbar";
 interface ComponentProps {
 }
 
-let App: React.FC<ComponentProps> = () => {
-    const [showPauseMenu, setShowPauseMenu] = useState(true);
+let App: React.FC<ComponentProps> = ({ children }) => {
 
-    const muiTheme = useMemo(() => createMuiTheme({
-        palette: {
-            type: "dark"
-        }
-    }), []);
 
-    return <ThemeProvider theme={muiTheme}>
-        <CssBaseline />
-
-        {touchSupported && <MobileControls />}
-
-        <Global
-            styles={{
-                html: {
-                    userSelect: "none",
-                    WebkitTouchCallout: "none",
-                    touchAction: "none"
-                }
-            }}
-        />
+    return <MyThemeProvider>
+        <MobileControls />
 
         <MouseRawInputSnackbar />
 
-        {
-            showPauseMenu &&
-            <GamePause
-                buttons={[
-                    {
-                        label: "SOCIAL"
-                    },
-                    {
-                        label: "OPTIONS"
-                    },
-                    {
-                        label: "LEAVE GAME"
-                    },
-                ]}
-            />
-        }
-    </ThemeProvider>;
+        <GlobalStyles />
+
+        <GamePause
+            buttons={[
+                {
+                    label: "SOCIAL"
+                },
+                {
+                    label: "OPTIONS"
+                },
+                {
+                    label: "LEAVE GAME"
+                },
+            ]}
+        />
+    </MyThemeProvider>;
 };
 
 export default App;

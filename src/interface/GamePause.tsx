@@ -1,5 +1,7 @@
 import React, { SyntheticEvent, useEffect, useState } from "react";
 
+import useTypedEventListener from "use-typed-event-listener";
+
 import styled from "@emotion/styled";
 import { CSSProperties } from "@material-ui/styles";
 
@@ -133,29 +135,28 @@ interface ComponentProps {
 let GamePause: React.FC<ComponentProps> = ({ buttons }) => {
     const [show, setShow] = useState(false);
 
+    useTypedEventListener(window, "keydown", e => {
+        if (e.code !== "Escape") return;
+        setShow(show => {
+            const newState = !show;
+            if (!newState) {
+                // special handling for escape key
+                // if we dont add timeout otherwise we would get instant exit from pointer lock
+                // setTimeout(() => pointerlock.capture(), 100); // this workaround will work only in 50%
+                // pointerlock.capture(); //TODO-HIGH enable when upstream bug with pointerlock-esc will be fixed
+            }
+            return newState;
+        });
+    });
+
     useEffect(() => {
-        const escListener = (e: KeyboardEvent) => {
-            if (e.code !== "Escape") return;
-            setShow(show => {
-                const newState = !show;
-                if (!newState) {
-                    // special handling for escape key
-                    // if we dont add timeout otherwise we would get instant exit from pointer lock
-                    // setTimeout(() => pointerlock.capture(), 100); // this workaround will work only in 50%
-                    // pointerlock.capture(); //TODO-HIGH enable when upstream bug with pointerlock-esc will be fixed
-                }
-                return newState;
-            });
-        };
         const onPointerlockExit = () => {
             // console.log("Showing pause menu because of pointer lock exit");
             setShow(true);
         };
         pointerlock.onRelease.push(onPointerlockExit);
-        window.addEventListener("keydown", escListener);
 
         return () => {
-            window.removeEventListener("keydown", escListener);
             pointerlock.removeListener("onRelease", onPointerlockExit);
         };
     }, []);

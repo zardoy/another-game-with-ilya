@@ -5,24 +5,15 @@
     <meta charset="UTF-8">
     <meta name="viewport"
         content="width=device-width, initial-scale=1.0, shrink-to-fit=no, user-scalable=no, viewport-fit=cover">
-    <title>DIMAKA</title>
+    <title>DIMAKA - ILYA</title>
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-title" content="DIMAKA">
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="application-name" content="DIMAKA">
     <style>
-        html {
-            overflow: hidden;
-        }
-
         canvas {
             width: 100%;
             height: 100%;
-        }
-
-        body {
-            margin: 0;
-            overflow: hidden;
         }
 
         .stats {
@@ -42,18 +33,6 @@
             content: attr(id) ": ";
             text-transform: uppercase;
         }
-
-        #mobile_controls {
-            position: fixed;
-            right: 0;
-            bottom: 0;
-        }
-
-        #mobile_controls img {
-            background: gray;
-            width: 50px;
-            height: 50px;
-        }
     </style>
 </head>
 
@@ -65,8 +44,9 @@
     </div>
     <canvas id="canvas"></canvas>
     <div id="root"></div>
+    <!-- DOCUMENT THIS!! -->
+    <!-- <script type="module" src="%SNOWPACK_PUBLIC_SCRIPT%"></script> -->
     <script type="module" src="index.js"></script>
-    <script type="module" src="interface/index.js"></script>
 </body>
 
 </html>

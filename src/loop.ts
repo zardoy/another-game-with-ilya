@@ -244,12 +244,6 @@ export const rotateCamera = (deltaX: number, deltaY: number) => {
         ry -= deltaY / delimeter;
 };
 
-document.addEventListener("mousemove", event => {
-    if (!document.pointerLockElement) return;
-    const { movementX: deltaX, movementY: deltaY } = event;
-    rotateCamera(deltaX, deltaY);
-});
-
 const MOVEMENT_DIVIDER_MIN = 100;
 const moveCamera = (vecAdd: Vec3, subtract: boolean) => {
     let movementDivider = MOVEMENT_DIVIDER_MIN;

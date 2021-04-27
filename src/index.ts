@@ -3,13 +3,15 @@
 // check support for events
 // right top corner - (battery) time
 // mouse sliders for ipad
-import { physicsUpdate, render } from "./loop.js";
+import { physicsUpdate, render, rotateCamera } from "./loop.js";
 import { createProgram } from "./util.js";
 import prismarineDiamondSquare from "diamond-square";
 import vec3 from "./vec3";
 import "./integrations.js";
 import prismarineWorld from "prismarine-world";
 import { Vec3 } from "vec3";
+import { initCanvas } from "./integrations.js";
+import "./interface";
 
 // const World = prismarineWorld("1.12");
 
@@ -124,3 +126,5 @@ const renderLoop = () => {
     requestAnimationFrame(renderLoop);
 };
 renderLoop();
+
+initCanvas(undefined, { rotateCamera });

@@ -9,9 +9,11 @@ import { makeStyles, Theme } from "@material-ui/core";
 import TouchMovementButton from "../components/TouchMovementButton";
 import { touchMovement } from "../loop";
 import { releasePointerCapture, useFixedPointerEvents } from "../react-util";
+import { touchSupported } from "../util";
 
 import type { CoordinateComponent } from "../structures";
 interface ComponentProps {
+    // moveCallback() { }
 }
 
 const buttonImagesPath = {
@@ -100,7 +102,8 @@ let MobileControls: React.FC<ComponentProps> = () => {
 
     // improve react rendering performance
     // TODO-EXTREMELY-HIGH wrap into flex container!
-    return <div
+    // watch for css selector!!!!!!!!
+    return !touchSupported ? null : <div
         onPointerDown={releasePointerCapture}
     >
         <div
