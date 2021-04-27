@@ -7,6 +7,7 @@ module.exports = {
         src: { url: "/" }
     },
     devOptions: {
-        port: 6000
+        // TODO-HIGH: raise an error when unsafe port is chosen
+        port: 7000
     }
 };
