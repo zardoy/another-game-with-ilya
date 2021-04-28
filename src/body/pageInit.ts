@@ -1,8 +1,12 @@
-if (import.meta.env.NODE_ENV === "development") document.title = "(dev) " + document.title;
+import { debug, pointerlock } from "../shared/util";
 
-const launchedVersion = import.meta.env.SNOWPACK_PUBLIC_SCRIPT.match(/\/([^\.]+)\.js/)![1];
+if (import.meta.env.NODE_ENV === "development") {
+    document.title = "(dev) " + document.title;
 
-document.title = `${document.title} - ${launchedVersion}`;
+    const launchedVersion = import.meta.env.SNOWPACK_PUBLIC_SCRIPT.match(/\/([^\.]+)\.js/)![1];
+
+    document.title = `${document.title} - ${launchedVersion}`;
+}
 
 window.addEventListener("keydown", e => {
     if (
@@ -13,4 +17,12 @@ window.addEventListener("keydown", e => {
     ) {
         e.preventDefault();
     }
+});
+
+document.addEventListener("pointerlockchange", e => {
+    if (pointerlock.stopFiring) return;
+    const { captured } = pointerlock;
+    debug(`Lock ${captured ? "captured" : "released"}`);
+    const eventsToFire = captured ? pointerlock.onCapture : pointerlock.onRelease;
+    eventsToFire.forEach(callback => callback(e));
 });

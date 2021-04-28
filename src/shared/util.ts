@@ -2,6 +2,7 @@ import type { Vector2 } from "contro/dist/utils/math";
 import _ from "lodash";
 import { Vec3 } from "vec3";
 
+import { deviceInfoVar } from "./globalState";
 import { touchMovement } from "./interface/Root";
 import { Vec3Temp } from "./interface/TouchControls";
 import { activeControls } from "./movementControl";
@@ -50,26 +51,13 @@ export const pointerlock = {
         pointerlock[type].splice(indexToRemove, 1);
     }
 };
-// https://browserleaks.com/webgl
-// implementation from https://bit.ly/3s1Rz8z
-// todo handle errors
-export const getRendererName = () => {
-    const gl = document.createElement("canvas").getContext("webgl");
-    if (!gl) throw new Error("Webgl is disabled or unsupported");
+// get benchmark data
+export const detectGpu = async (gl: WebGL2RenderingContext | WebGLRenderingContext) => {
     const debugInfo = gl.getExtension("WEBGL_debug_renderer_info");
     if (!debugInfo) throw new Error("no WEBGL_debug_renderer_info");
     const renderer = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL);
-    return renderer;
+    deviceInfoVar({ gpu: renderer });
 };
-{
-    document.addEventListener("pointerlockchange", e => {
-        if (pointerlock.stopFiring) return;
-        const { captured } = pointerlock;
-        debug(`Lock ${captured ? "captured" : "released"}`);
-        const eventsToFire = captured ? pointerlock.onCapture : pointerlock.onRelease;
-        eventsToFire.forEach(callback => callback(e));
-    });
-}
 
 export const getActiveMovement = (): Vec3Temp => {
     const hardwareMovementRaw: Vector2 = activeControls.movement.query();

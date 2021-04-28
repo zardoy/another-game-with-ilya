@@ -2,10 +2,12 @@ import React, { useEffect, useState } from "react";
 
 import useTypedEventListener from "use-typed-event-listener";
 
+import { useReactiveVar } from "@apollo/client";
 import styled from "@emotion/styled";
 import { CSSProperties } from "@material-ui/styles";
 
-import { getRendererName, pointerlock } from "../util";
+import { deviceInfoVar } from "../globalState";
+import { entries, pointerlock } from "../util";
 
 const fullScreenFixed = `
     position: fixed;
@@ -99,14 +101,7 @@ const MenuActionOWButton: React.FC<{ keyboardKey?: string; style?: CSSProperties
 };
 
 const RightCornerInfo: React.FC = () => {
-    const [gpu] = useState(() => {
-        try {
-            return getRendererName();
-        } catch (err) {
-            console.warn("Unable to detect gpu", err);
-            return "Unknown";
-        }
-    });
+    const deviceInfo = useReactiveVar(deviceInfoVar);
 
     return <div style={{
         position: "fixed",
@@ -114,7 +109,14 @@ const RightCornerInfo: React.FC = () => {
         right: 0,
         padding: 5
     }}>
-        GPU: {gpu}
+        {
+            !deviceInfo ?
+                "Loading device info" :
+                entries(deviceInfo)
+                    .map(([property, value]) =>
+                        <span key={property}>{property.toUpperCase()}: {value}</span>
+                    )
+        }
     </div>;
 };
 

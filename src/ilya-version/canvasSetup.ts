@@ -7,9 +7,11 @@ import { Vec3 } from "vec3";
 import { initCameraControl } from "../shared/cameraControl";
 import { UpdateStatCallback } from "../shared/interface/Stats";
 import { ArrayPoint, Matrix4x4, TrianglePoints } from "../shared/structures";
-import { createProgram, entries, getActiveMovement, mapVector } from "../shared/util";
+import { createProgram, detectGpu, entries, getActiveMovement, mapVector } from "../shared/util";
 import vec3 from "../shared/vec3";
 import { renderFrame } from "./renderFrame";
+
+const glsl = x => x;
 
 export let rz = 0, ry = 0;
 export const fNear = 0.1;
@@ -54,8 +56,6 @@ export const mesh: Array<{
 export const camera = vec3(0, 0, -5);
 
 export const setupCanvas = (canvas: HTMLCanvasElement, updateStat: UpdateStatCallback) => {
-    const glsl = x => x;
-
     const downgradeResolution = 1;
 
     if (downgradeResolution > 1) {
@@ -93,7 +93,7 @@ export const setupCanvas = (canvas: HTMLCanvasElement, updateStat: UpdateStatCal
     if (!gl) {
         throw new Error("WebGL 2 isn't supported on your platform. Probably you can enable it manually");
     }
-
+    detectGpu(gl);
     // SHADERS
 
     const vertexCode = glsl`#version 300 es
