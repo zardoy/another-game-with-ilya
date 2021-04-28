@@ -1,14 +1,12 @@
 import React, { useRef, useState } from "react";
 
-import clsx from "clsx";
 import _ from "lodash";
 
 import { css } from "@emotion/css";
-import { makeStyles, Theme } from "@material-ui/core";
 
-import TouchMovementButton from "../../components/TouchMovementButton";
 import { releasePointerCapture, useFixedPointerEvents } from "../react-util";
 import { touchSupported } from "../util";
+import TouchMovementButton from "./TouchMovementButton";
 
 import type { CoordinateComponent } from "../structures";
 
@@ -54,25 +52,11 @@ interface StyleProps {
     controlsSize: number;
 }
 
-const useStyles = makeStyles<Theme, StyleProps>({
-    touchMovementArea: ({ controlsSize }) => ({
-        position: "fixed",
-        left: 0,
-        bottom: 0,
-        width: controlsSize * 3,
-        height: controlsSize * 3,
-        border: "1px solid transparent",
-        touchAction: "none"
-    }),
-});
-
 // IOS safari bug: select element dev feature fires touch/pointer events and doesn't fire cancel/end event! So, it's posiible to accomplish the state where app thinks that user holds button but he's actually not!
 // there is no workaround for this now.
 
 let TouchControls: React.FC<ComponentProps> = ({ updateTouchMoving }) => {
     const movementRef = useRef<Vec3Temp>({ x: 0, y: 0, z: 0 });
-
-    const classes = useStyles({ controlsSize: touchControlsSize });
 
     const [showYButtons, setShowYButtons] = useState(true);
     const [showForwardAuxButtons, setShowForwardAuxButtons] = useState(true);
@@ -112,7 +96,15 @@ let TouchControls: React.FC<ComponentProps> = ({ updateTouchMoving }) => {
         `}
     >
         <div
-            className={clsx(classes.touchMovementArea, "touch-movement-area")}
+            className={css`
+                position: fixed;
+                left: 0;
+                bottom: 0;
+                width: ${touchControlsSize * 3}px;
+                height: ${touchControlsSize * 3}px;
+                border: 1px solid transparent;
+                touch-action: none;
+            `}
         >
             <div
                 style={{

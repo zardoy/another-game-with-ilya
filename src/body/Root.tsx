@@ -1,82 +1,60 @@
-import React, { Suspense, useEffect, useState } from "react";
+import React, { useState } from "react";
 
-import useTypedEventListener from "use-typed-event-listener";
+import { Button, Grid, Typography } from "@material-ui/core";
 
-import { css } from "@emotion/css";
-import { Backdrop as MUIBackdrop, Button, CircularProgress, Grid, Typography } from "@material-ui/core";
-import zIndex from "@material-ui/core/styles/zIndex";
-
-import Interface from "../shared/interface/Root";
 import { entries } from "../shared/util";
+import GameVersion from "./GameVersion";
 import GlobalStyles from "./GlobalStyles";
 import MyThemeProvider from "./MyThemeProvider";
-import Stats from "./Stats";
 
 interface ComponentProps {
 }
 
-const Backdrop: React.FC = () => <MUIBackdrop
-    open={true}
-    className={css`
-        z-index: ${zIndex.drawer + 1} !important;
-    `}
->
-    <CircularProgress color="inherit" />
-</MUIBackdrop>;
-
 interface LoadModuleProps {
-    modulePath: string;
-    onModuleLoad?: () => unknown;
+    rootComponentPath: string;
+    onLoad?: () => unknown;
     unloadModule?: () => unknown;
 }
 
-const ExternalModule: React.FC<LoadModuleProps> = ({ modulePath, onModuleLoad, unloadModule = () => { } }) => {
-    const ModuleToLoad = React.lazy(async () => {
-        const module = await import(modulePath);
-        onModuleLoad?.();
+const GameVersionLazy: React.FC<LoadModuleProps> = ({ rootComponentPath, onLoad, unloadModule }) => {
+    const LazyModule = React.lazy(async () => {
+        const module = await import(rootComponentPath);
+        onLoad?.();
         return module;
     });
 
-    return <Suspense fallback={<Backdrop />}>
-        <ModuleToLoad />
-
-        <Interface unloadModule={unloadModule} />
-        <Stats />
-    </Suspense>;
+    return <GameVersion {...{ unloadModule }}><LazyModule /></GameVersion>;
 };
 
-const versions: {
+const gameVersions: {
     [label: string]: {
-        title: string;
         module: string;
     };
 } = {
     ilya: {
-        title: "Ilya IMPLEMENTATION",
         module: "../ilya-version/index.js"
     },
     three: {
-        title: "Three.js IMPLEMENTATION",
         module: "../three-version/index.js"
     }
 };
 
 let Root: React.FC<ComponentProps> = () => {
-    const [modulePath, setModulePath] = useState(null as string | null);
+    const [enginePath, setEnginePath] = useState(null as string | null);
     const [moduleLoaded, setModuleLoaded] = useState(false);
 
-    useTypedEventListener(window, "hashchange", () => {
-        const selectedVersion = window.location.hash.slice(1);
-        if (selectedVersion in versions) {
-            setModulePath(versions[selectedVersion].module);
-        } else {
-            setModulePath(null);
-        }
-    });
+    // useTypedEventListener(window, "hashchange", () => {
+    //     const selectedVersion = window.location.hash.slice(1);
+    //     if (selectedVersion in gameVersions) {
+    //         setVersionPath(gameVersions[selectedVersion].module);
+    //     } else {
+    //         setVersionPath(null);
+    //     }
+    // });
 
-    useEffect(() => {
-        window.dispatchEvent(new HashChangeEvent("hashchange"));
-    }, []);
+    // useEffect(() => {
+    //     window.dispatchEvent(new HashChangeEvent("hashchange"));
+    // }, []);
 
     return <MyThemeProvider>
         <GlobalStyles />
@@ -84,31 +62,41 @@ let Root: React.FC<ComponentProps> = () => {
             !moduleLoaded &&
             <Grid
                 container
-                justify="center"
-                alignItems="center"
+                justify="space-between"
                 direction="column"
-                spacing={3}
+                alignContent="center"
                 style={{ height: "100vh" }}
             >
                 <Typography variant="h1" align="center">DIMAKA</Typography>
-                {entries(versions).map(([label, { title, module }]) => {
-                    return <Grid item key={label}>
-                        <Button
-                            variant="contained"
-                            size="large"
-                            color="primary"
-                            onClick={() => window.location.hash = label.toString()}
-                        >{title}</Button>
-                    </Grid>;
-                })}
+                <Grid
+                    item
+                    container
+                    justify="center"
+                    alignItems="center"
+                    direction="column"
+                    spacing={3}
+                >
+                    {entries(gameVersions).map(([label, { module }]) => {
+                        return <Grid item key={label}>
+                            <Button
+                                variant="contained"
+                                color="primary"
+                                size="large"
+                                // onClick={() => window.location.hash = label.toString()}
+                                onClick={() => setEnginePath(module)}
+                            >{label} GAME ENGINE</Button>
+                        </Grid>;
+                    })}
+                </Grid>
+                <Typography variant="body2" align="right" color="textSecondary">BUILT {import.meta.env.SNOWPACK_PUBLIC_BUILD_DATE}</Typography>
             </Grid>
         }
 
-        {modulePath &&
-            <ExternalModule
-                modulePath={modulePath}
-                onModuleLoad={() => setModuleLoaded(true)}
-                unloadModule={() => (setModuleLoaded(false), window.location.hash = "")}
+        {enginePath &&
+            <GameVersionLazy
+                rootComponentPath={enginePath}
+                onLoad={() => setModuleLoaded(true)}
+            // unloadModule={() => (setModuleLoaded(false), window.location.hash = "")}
             />}
     </MyThemeProvider>;
 };

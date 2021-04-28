@@ -11,6 +11,7 @@ module.exports = {
         port: 7000
     },
     env: {
+        SNOWPACK_PUBLIC_SCRIPT: "body/index.js",
         SNOWPACK_PUBLIC_NAME: process.env.npm_package_name,
         SNOWPACK_PUBLIC_BUILD_DATE: new Date().toLocaleDateString()
     }

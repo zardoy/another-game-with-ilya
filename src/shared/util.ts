@@ -77,7 +77,6 @@ export const getActiveMovement = ({ touchMovement }: { touchMovement: Vec3Temp; 
         y: activeControls.crouch.query() ? -1 : activeControls.jump.query() ? 1 : 0,
         z: hardwareMovementRaw.y
     };
-    console.log(movement);
     for (const [coord] of entries(movement)) {
         // add touch movement and normalize it
         movement[coord] = _.clamp(touchMovement[coord] + movement[coord], -1, 1);

@@ -3,10 +3,10 @@ import type { Vector2 } from "contro/dist/utils/math";
 import _ from "lodash";
 import { Vec3 } from "vec3";
 
-import { updateStat } from "../body/Stats";
 // import prismarineWorld from "prismarine-world";
 import { initCameraControl } from "../shared/cameraControl";
 import { touchMovement } from "../shared/interface/Root";
+import { UpdateStatCallback } from "../shared/interface/Stats";
 import { ArrayPoint, Matrix4x4, TrianglePoints } from "../shared/structures";
 import { createProgram, entries, getActiveMovement, mapVector } from "../shared/util";
 import vec3 from "../shared/vec3";
@@ -54,7 +54,7 @@ export const mesh: Array<{
 
 export const camera = vec3(0, 0, -5);
 
-export const setupCanvas = (canvas: HTMLCanvasElement) => {
+export const setupCanvas = (canvas: HTMLCanvasElement, updateStat: UpdateStatCallback) => {
     // const World = prismarineWorld("1.12");
 
     // const diamondSquare = prismarineDiamondSquare({ version: '1.12', seed: Math.floor(Math.random() * Math.pow(2, 31)) });
@@ -94,7 +94,10 @@ export const setupCanvas = (canvas: HTMLCanvasElement) => {
 
     // document.addEventListener("pointerlockerror")
 
-    const gl = canvas.getContext("webgl2");
+    const gl = canvas.getContext("webgl2", {
+        // doesn't switch the gpu on Windows https://github.com/emscripten-core/emscripten/issues/10000#issuecomment-749167911
+        powerPreference: "high-performance"
+    });
 
     if (!gl) {
         throw new Error("WebGL 2 isn't supported on your platform. Probably you can enable it manually");
@@ -161,7 +164,7 @@ void main() {
         // const colorUniformLocation = gl.getUniformLocation(shaderProgram, "u_color");
         // gl.uniform4f(colorUniformLocation, 1, 0, 0, 1);
         gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
-        renderFrame(gl, shaderProgram);
+        renderFrame(gl, shaderProgram, updateStat);
         requestAnimationFrame(renderLoop);
     };
     renderLoop();

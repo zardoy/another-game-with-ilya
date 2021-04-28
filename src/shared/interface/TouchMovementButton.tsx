@@ -2,10 +2,10 @@ import React from "react";
 
 import clsx from "clsx";
 
-import { makeStyles } from "@material-ui/core";
+import { css } from "@emotion/css";
 
-import { touchControlsSize } from "../shared/interface/TouchControls";
-import { useFixedPointerEvents } from "../shared/react-util";
+import { useFixedPointerEvents } from "../react-util";
+import { touchControlsSize } from "./TouchControls";
 
 type ComponentProps = {
     size?: number;
@@ -19,12 +19,9 @@ type ComponentProps = {
         ImgProps?: React.ComponentProps<"img">;
     });
 
-const useStyles = makeStyles({
-    button: {},
-    touchingButton: {
-        backgroundColor: "rgba(255, 255, 255, 0.1)"
-    }
-});
+const touchingButtonClass = css`
+    background-color: rgba(255, 255, 255, 0.1);
+`;
 
 let TouchMovementButton: React.FC<ComponentProps> = ({
     size = touchControlsSize,
@@ -33,12 +30,11 @@ let TouchMovementButton: React.FC<ComponentProps> = ({
     DivProps,
     ...restProps
 }) => {
-    const classes = useStyles();
     const [pointerEvents, touching] = useFixedPointerEvents({ ...restProps });
 
     return <div
         {...DivProps}
-        className={clsx("touch-movement-button", DivProps?.className, { [classes.touchingButton]: touching })}
+        className={clsx("touch-movement-button", { [touchingButtonClass]: touching }, DivProps?.className)}
         style={{
             width: size, height: size, ...DivProps?.style
         }}
@@ -48,7 +44,13 @@ let TouchMovementButton: React.FC<ComponentProps> = ({
             <img
                 {...restProps.ImgProps}
                 src={restProps.imageSrc}
-                style={{ pointerEvents: "none", width: "100%", height: "100%", ...restProps.ImgProps?.style }}
+                className={clsx(css`
+                        width: 100%;
+                        height: 100%;
+                        pointer-events: none;
+                    `,
+                    restProps.ImgProps?.className
+                )}
             />}
         {children}
     </div>;

@@ -1,6 +1,6 @@
 import { Vec3 } from "vec3";
 
-import { updateStat } from "../body/Stats";
+import { UpdateStatCallback } from "../shared/interface/Stats";
 import { Matrix4x4, TrianglePoints } from "../shared/structures";
 import { mapVector } from "../shared/util";
 import { camera, fNear, matProj, mesh, ry, rz } from "./canvasSetup";
@@ -38,7 +38,7 @@ const vecbymat1 = (vector: Vec3, { matrix: matrix }: Matrix4x4) => {
         matrix[i][0] * vector.x + matrix[i][1] * vector.y + matrix[i][2] * vector.z);
 };
 
-export const renderFrame = (gl: WebGL2RenderingContext, shaderProgram: WebGLProgram) => {
+export const renderFrame = (gl: WebGL2RenderingContext, shaderProgram: WebGLProgram, updateStat: UpdateStatCallback) => {
     let drawedTriangles = 0;
     const colorUniformLocation = gl.getUniformLocation(shaderProgram, "u_color");
     let RZ = new Matrix4x4(),

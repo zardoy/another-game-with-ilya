@@ -2,9 +2,12 @@ import React, { useEffect, useRef } from "react";
 
 import { css } from "@emotion/css";
 
-import { entries } from "../shared/util";
+import { entries } from "../util";
+
+export type UpdateStatCallback = (stat: keyof typeof statsDisplay, newValue: string | number) => unknown;
 
 interface ComponentProps {
+    updateStatCallbackRef: React.MutableRefObject<UpdateStatCallback>;
 }
 
 const statsDisplay = {
@@ -13,10 +16,9 @@ const statsDisplay = {
     triangles: true
 };
 
-const updateStatNotReady = () => { throw new Error("Stats display not ready yet!"); };
-export let updateStat: (stat: keyof typeof statsDisplay, newValue: string | number) => unknown = updateStatNotReady;
+const updateStatNotReady = () => { throw new Error("Stats component isn't mounted anymore!"); };
 
-let Stats: React.FC<ComponentProps> = () => {
+let Stats: React.FC<ComponentProps> = ({ updateStatCallbackRef }) => {
     const divRef = useRef<HTMLDivElement>(null!);
 
     useEffect(() => {
@@ -25,9 +27,9 @@ let Stats: React.FC<ComponentProps> = () => {
             statElems[statName] = divRef.current.appendChild(document.createElement("span"));
             statElems[statName].dataset.display = statName;
         }
-        updateStat = ((stat, newValue) => statElems[stat].innerText = newValue.toString());
+        updateStatCallbackRef.current = ((stat, newValue) => statElems[stat].innerText = newValue.toString());
         return () => {
-            updateStat = updateStatNotReady;
+            updateStatCallbackRef.current = updateStatNotReady;
         };
     }, []);
 
@@ -51,7 +53,7 @@ let Stats: React.FC<ComponentProps> = () => {
                 text-transform: uppercase;
             }
             & > span {
-                padding-right: 3px;
+                padding-right: 5px;
             }
         `}
         ref={divRef}
