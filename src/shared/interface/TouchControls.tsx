@@ -4,6 +4,9 @@ import _ from "lodash";
 
 import { css } from "@emotion/css";
 
+import pauseButtonSrc from "../../assets/pause-button.svg";
+import circleButtonSrc from "../../assets/touch-circle.svg";
+import arrowButtonSrc from "../../assets/touch-movement-button.svg";
 import { releasePointerCapture, useFixedPointerEvents } from "../react-util";
 import { touchSupported } from "../util";
 import TouchMovementButton from "./TouchMovementButton";
@@ -15,12 +18,6 @@ export type Vec3Temp = Record<CoordinateComponent, number>;
 interface ComponentProps {
     updateTouchMoving?: (vec: Vec3Temp) => unknown;
 }
-
-const buttonImagesPath = {
-    arrow: "../assets/touch-movement-button.svg",
-    circle: "../assets/touch-circle.svg",
-    pause: "../assets/pause-button.svg"
-};
 
 export const touchControlsSize = 50;
 const pauseButtonSize = 45;
@@ -132,7 +129,7 @@ let TouchControls: React.FC<ComponentProps> = ({ updateTouchMoving }) => {
                                     gridArea: label
                                 }
                             }}
-                            imageSrc={buttonImagesPath.arrow}
+                            imageSrc={arrowButtonSrc}
                             ImgProps={{
                                 style: { transform: `rotate(${rotate}deg)` }
                             }}
@@ -156,7 +153,7 @@ let TouchControls: React.FC<ComponentProps> = ({ updateTouchMoving }) => {
                 padding: 5,
                 backgroundColor: "rgba(255, 255, 255, 0.1)",
             }}
-            src={buttonImagesPath.pause}
+            src={pauseButtonSrc}
         />
         <div
             // expand with css
@@ -179,13 +176,13 @@ let TouchControls: React.FC<ComponentProps> = ({ updateTouchMoving }) => {
                                 order: ${!index ? 0 : 2};
                             `
                         }}
-                        imageSrc={buttonImagesPath.arrow}
+                        imageSrc={arrowButtonSrc}
                         updateTouching={moving => updateMoving(moving, [["y", yStep]])}
                     />;
                 })
             }
             <img
-                src={buttonImagesPath.circle}
+                src={circleButtonSrc}
                 draggable={false}
                 style={{ width: touchControlsSize, height: touchControlsSize, order: 1 }}
             />

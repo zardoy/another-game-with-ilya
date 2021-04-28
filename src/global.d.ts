@@ -33,6 +33,11 @@ interface Gamepad {
     };
 }
 
+declare module '*.svg' {
+    const src: string;
+    export default src;
+}
+
 // todo: fix snowpack
 interface ImportMeta {
     env: {
