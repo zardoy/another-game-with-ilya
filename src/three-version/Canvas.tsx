@@ -1,74 +1,74 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 
-import { Vector3 } from "three";
+import { Physics } from "@react-three/cannon";
+import { Sky, useDetectGPU } from "@react-three/drei";
+import { Canvas as ThreeFiberCanvas } from "@react-three/fiber";
 
-import { Sky } from "@react-three/drei";
-import { Canvas as ThreeFiberCanvas, MeshProps, useThree } from "@react-three/fiber";
+import { world } from "../shared/minecraft-data";
+import vec3 from "../shared/vec3";
+import Cube from "./Cube";
+import Debug from "./Debug";
+import Player from "./Player";
+import { addTexture } from "./textures";
 
-import { initCameraControl } from "../shared/cameraControl";
-import { touchMovement } from "../shared/interface/Root";
-import { useInterval } from "../shared/react-util";
-import { getActiveMovement } from "../shared/util";
-
-interface ComponentProps {
-}
-
-const Box: React.FC<MeshProps> = (props) => {
-    const mesh = useRef<THREE.Mesh>(null!);
-    const [hovered, setHovered] = useState(false);
-    const [active, setActive] = useState(false);
-
-    // useFrame(() => mesh.current.rotation.x += 0.01);
-
-    return <mesh
-        ref={mesh}
-        scale={active ? 1.5 : 1}
-        onClick={() => setActive(!hovered)}
-        // onPointerOver={() => setHovered(true)}
-        // onPointerOut={() => setHovered(false)}
-        {...props}
-    >
-        <boxGeometry args={[2, 2, 2]} />
-        <meshStandardMaterial color={hovered ? "hotpink" : "orange"} />
-    </mesh>;
+const Cubes: React.FC<{ blocks: Block[]; }> = ({ blocks }) => {
+    return <>
+        {
+            blocks.map(({ x, y, z, blockName }) => {
+                return <Cube key={`${x}${y}${z}`} position={vec3(x, y, z)} blockName={blockName} />;
+            })
+        }
+    </>;
 };
 
-const CanvasControl = () => {
-    const { camera } = useThree();
+type Block = {
+    x: number;
+    y: number;
+    z: number;
+    blockName: string;
+};
 
-    useInterval(() => {
-        const movement = getActiveMovement({ touchMovement });
-        const movementVector = new Vector3(movement.x, movement.y, movement.z);
-        movementVector.divideScalar(10);
-        camera.position.add(movementVector);
-    }, 15);
+let Canvas: React.FC = () => {
+    const [chunk, setChunk] = useState<Block[] | null>(null);
+
+    const GPUTier = useDetectGPU();
 
     useEffect(() => {
-        initCameraControl(document.getElementById("canvas")!, {
-            rotateCamera({ x, y }) {
-                camera.rotation.y -= x * 0.002;
-                camera.rotation.x -= y * 0.002;
+        console.log(GPUTier);
+        (async () => {
+            console.time("Blocks scan");
+            const blocks: Block[] = [];
+            // const y = 5;
+            for (let x = 0; x < 15; x++) {
+                for (let y = 0; y < 15; y++) {
+                    for (let z = 0; z < 15; z++) {
+                        const { name: blockName } = await world.getBlock(vec3(x, y, z));
+                        console.log(blockName);
+                        const hasTexture = addTexture(blockName);
+                        if (!hasTexture) continue;
+                        blocks.push({
+                            x, y, z,
+                            blockName
+                        });
+                    }
+                }
             }
-        });
-        return () => {
-            // TODO
-            console.log("Canvas unmounted!");
-        };
+            console.timeEnd("Blocks scan");
+            setChunk(blocks);
+        })();
     }, []);
 
-    return null;
-};
-
-let Canvas: React.FC<ComponentProps> = () => {
     // fix ref
     // todo use normal resize!
     return <ThreeFiberCanvas id="canvas">
-        <CanvasControl />
-        <Sky sunPosition={[100, 20, 100]} />
+        <Debug />
+        <Sky sunPosition={[0, 500, 0]} />
         <ambientLight />
-        <pointLight position={[10, 10, 10]} />
-        <Box position={[-1.2, 0, 0]} />
-        <Box position={[1.2, 0, 0]} />
+        {/* <pointLight position={[10, 100, 10]} /> */}
+        {chunk && <Physics>
+            <Player defaultPosition={vec3(0, 110, 0)} />
+            <Cubes blocks={chunk} />
+        </Physics>}
     </ThreeFiberCanvas>;
 };
 

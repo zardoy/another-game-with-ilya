@@ -87,6 +87,11 @@ let Root: React.FC<ComponentProps> = () => {
                             >{label} GAME ENGINE</Button>
                         </Grid>;
                     })}
+                    <Button
+                        variant="contained"
+                        color="secondary"
+                        disabled
+                    >GAME SETTINGS</Button>
                 </Grid>
                 <Typography variant="body2" align="right" color="textSecondary">BUILT {import.meta.env.SNOWPACK_PUBLIC_BUILD_DATE}</Typography>
             </Grid>

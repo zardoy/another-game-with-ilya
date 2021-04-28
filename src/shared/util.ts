@@ -2,6 +2,7 @@ import type { Vector2 } from "contro/dist/utils/math";
 import _ from "lodash";
 import { Vec3 } from "vec3";
 
+import { touchMovement } from "./interface/Root";
 import { Vec3Temp } from "./interface/TouchControls";
 import { activeControls } from "./movementControl";
 import { ArrayPoint, CoordinateComponent } from "./structures";
@@ -70,7 +71,7 @@ export const getRendererName = () => {
     });
 }
 
-export const getActiveMovement = ({ touchMovement }: { touchMovement: Vec3Temp; }): Vec3Temp => {
+export const getActiveMovement = (): Vec3Temp => {
     const hardwareMovementRaw: Vector2 = activeControls.movement.query();
     const movement: Vec3Temp = {
         x: hardwareMovementRaw.x,

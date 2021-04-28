@@ -23,9 +23,6 @@ let Root: React.FC<ComponentProps> = ({ unloadModule }) => {
         <GamePause
             buttons={[
                 {
-                    label: "SOCIAL"
-                },
-                {
                     label: "OPTIONS"
                 },
                 {

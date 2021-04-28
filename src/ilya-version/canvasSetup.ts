@@ -5,7 +5,6 @@ import { Vec3 } from "vec3";
 
 // import prismarineWorld from "prismarine-world";
 import { initCameraControl } from "../shared/cameraControl";
-import { touchMovement } from "../shared/interface/Root";
 import { UpdateStatCallback } from "../shared/interface/Stats";
 import { ArrayPoint, Matrix4x4, TrianglePoints } from "../shared/structures";
 import { createProgram, entries, getActiveMovement, mapVector } from "../shared/util";
@@ -55,14 +54,6 @@ export const mesh: Array<{
 export const camera = vec3(0, 0, -5);
 
 export const setupCanvas = (canvas: HTMLCanvasElement, updateStat: UpdateStatCallback) => {
-    // const World = prismarineWorld("1.12");
-
-    // const diamondSquare = prismarineDiamondSquare({ version: '1.12', seed: Math.floor(Math.random() * Math.pow(2, 31)) });
-
-    // const world = new World(diamondSquare);
-
-    // world.getBlock(new Vec3(3, 50, 3)).then(block => console.log(JSON.stringify(block, null, 2)));
-
     const glsl = x => x;
 
     const downgradeResolution = 1;
@@ -362,7 +353,7 @@ void main() {
 
     const physicsUpdate = () => {
         // key engine from phaser
-        const movement = getActiveMovement({ touchMovement });
+        const movement = getActiveMovement();
 
         if (movement.y) {
             moveCamera(
