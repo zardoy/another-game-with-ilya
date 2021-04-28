@@ -1,3 +1,5 @@
+// THE ACTUAL ENTRYPOINT COMPONENT FOR THE WHOLE APP
+
 import React, { useState } from "react";
 
 import { Button, Grid, Typography } from "@material-ui/core";

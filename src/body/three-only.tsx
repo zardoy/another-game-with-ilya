@@ -1,5 +1,5 @@
 import ThreeEngine from "../three-version/Root";
-import { renderOnlyWorld } from "./only-world";
+import { renderApp } from "./renderApp";
 
-renderOnlyWorld(ThreeEngine);
+renderApp(ThreeEngine);
 

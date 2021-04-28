@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from "react";
 
+import { userLocationVar } from "../shared/globalState";
 import Stats, { UpdateStatCallback } from "../shared/interface/Stats";
 import { setupCanvas } from "./canvasSetup";
 
@@ -15,6 +16,7 @@ let Root: React.FC<ComponentProps> = () => {
 
     useEffect(() => {
         setupCanvas(canvasRef.current, updateStatCallbackRef.current);
+        userLocationVar("playing");
         return () => {
             console.log("Canvas unmounted!");
         };

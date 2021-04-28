@@ -1,21 +1,24 @@
+// MAIN ENTRYPOINT
+
 import "./pageInit";
 
 import React from "react";
 
 import ReactDOM from "react-dom";
 
-import GameVersion from "./GameVersion";
+import Interface from "../shared/interface/Root";
 import GlobalStyles from "./GlobalStyles";
 
 // WORKAROUND
 // try to not import theme to avoid overhead
 
-export const renderOnlyWorld = (EngineRootComponent: React.FC) => {
+export const renderApp = (ChildrenComponent: React.FC) => {
     ReactDOM.render(
-        <GameVersion>
+        <>
+            <Interface unloadModule={() => { }} />
+
             <GlobalStyles />
-            <EngineRootComponent />
-        </GameVersion>,
+            <ChildrenComponent />
+        </>,
         document.getElementById("root"));
 };
-

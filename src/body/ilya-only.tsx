@@ -1,5 +1,5 @@
 import IlyaEngine from "../ilya-version/Root";
-import { renderOnlyWorld } from "./only-world";
+import { renderApp } from "./renderApp";
 
-renderOnlyWorld(IlyaEngine);
+renderApp(IlyaEngine);
 

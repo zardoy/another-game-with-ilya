@@ -1,9 +1,10 @@
-import React from "react";
+import React, { useEffect } from "react";
 
 import { Physics } from "@react-three/cannon";
 import { Sky } from "@react-three/drei";
 import { Canvas as ThreeFiberCanvas } from "@react-three/fiber";
 
+import { userLocationVar } from "../shared/globalState";
 import vec3 from "../shared/vec3";
 import Cube from "./Cube";
 import DebugOverlay from "./DebugOverlay";
@@ -32,6 +33,10 @@ const defaultPlayerPosition = vec3(0, 110, 0);
 addTexture("dirt");
 
 let Canvas: React.FC = () => {
+    useEffect(() => {
+        userLocationVar("playing");
+    }, []);
+
     // fix ref
     // todo use normal resize!
     return <ThreeFiberCanvas id="canvas">
