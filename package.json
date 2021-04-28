@@ -6,7 +6,7 @@
     "license": "MIT",
     "private": true,
     "scripts": {
-        "start-ilya": "cross-env SNOWPACK_PUBLIC_SCRIPT=body/ilya-only.js snowpack dev --polyfill-node",
+        "start-ilya": "yarn && cross-env SNOWPACK_PUBLIC_SCRIPT=body/ilya-only.js snowpack dev --polyfill-node",
         "start-three": "cross-env SNOWPACK_PUBLIC_SCRIPT=body/three-only.js snowpack dev --polyfill-node",
         "start-full": "snowpack dev --polyfill-node",
         "build": "snowpack build --polyfill-node"
