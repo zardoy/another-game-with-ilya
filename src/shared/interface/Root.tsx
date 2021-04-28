@@ -2,6 +2,7 @@ import React from "react";
 
 import GamePause from "./GamePause";
 import MouseRawInputSnackbar from "./MouseRawInputSnackbar";
+import { pauseSchema } from "./pauseSchema";
 import TouchControls from "./TouchControls";
 
 interface ComponentProps {
@@ -21,15 +22,7 @@ let Root: React.FC<ComponentProps> = ({ unloadModule }) => {
         }} />
 
         <GamePause
-            buttons={[
-                {
-                    label: "OPTIONS"
-                },
-                {
-                    label: "UNLOAD MODULE",
-                    // click: unloadModule
-                },
-            ]}
+            schema={pauseSchema}
         />
     </>;
 };

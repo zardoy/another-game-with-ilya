@@ -10,6 +10,10 @@ import { initCameraControl } from "../shared/cameraControl";
 import { useInterval } from "../shared/react-util";
 import { getActiveMovement } from "../shared/util";
 
+interface ComponentProps {
+    defaultPosition: Vec3;
+}
+
 const euler = new Euler(0, 0, 0, 'YXZ');
 const playerVector = new Vector3();
 
@@ -19,7 +23,69 @@ const polarAngle = {
     max: Math.PI
 };
 
-const Player: React.FC<{ defaultPosition: Vec3; }> = ({ defaultPosition }) => {
+// const getDirection = () => {
+//     const direction = new Vector3(0, 0, - 1);
+
+//     return (v: Vector3) => v.copy(direction).applyQuaternion(camera.quaternion);
+// };
+
+const useCameraRotationControl = () => {
+    const { camera } = useThree();
+
+    useEffect(() => {
+        initCameraControl(document.getElementById("canvas")!, {
+            rotateCamera(delta) {
+                euler.setFromQuaternion(camera.quaternion);
+
+                euler.y -= delta.x * 0.002;
+                euler.x -= delta.y * 0.002;
+
+                euler.x = Math.max(_PI_2 - polarAngle.max, Math.min(_PI_2 - polarAngle.min, euler.x));
+
+                camera.quaternion.setFromEuler(euler);
+            }
+        });
+        return () => {
+            // TODO we are not ready for this yet
+            console.error("Canvas unmounted!");
+        };
+    }, []);
+};
+
+export const PlayerFlying: React.FC<ComponentProps> = ({ defaultPosition }) => {
+    const { camera } = useThree();
+
+    useInterval(() => {
+        const movement = getActiveMovement();
+        movement.z = movement.z * -1;
+
+        const moveRight = (distance: number) => {
+            playerVector.setFromMatrixColumn(camera.matrix, 0);
+
+            camera.position.addScaledVector(playerVector, distance);
+        };
+
+        const moveForward = (distance: number) => {
+            playerVector.setFromMatrixColumn(camera.matrix, 0);
+
+            playerVector.crossVectors(camera.up, playerVector);
+
+            camera.position.addScaledVector(playerVector, distance);
+        };
+
+        const movementVector = new Vector3(movement.x, movement.y, movement.z);
+        movementVector.divideScalar(10);
+        if (movementVector.x) moveRight(movementVector.x);
+        if (movementVector.z) moveForward(movementVector.z);
+        camera.position.y += movementVector.y;
+    }, 15);
+
+    useCameraRotationControl();
+
+    return null;
+};
+
+export const PlayerWithPhysics: React.FC<ComponentProps> = ({ defaultPosition }) => {
     const { camera } = useThree();
 
     const [sphereRef, sphereApi] = useSphere(() => ({
@@ -54,57 +120,9 @@ const Player: React.FC<{ defaultPosition: Vec3; }> = ({ defaultPosition }) => {
         }
 
         camera.position.copy(sphereRef.current!.position);
-
-        // const moveRight = (distance: number) => {
-        //     playerVector.setFromMatrixColumn(camera.matrix, 0);
-
-        //     camera.position.addScaledVector(playerVector, distance);
-        // };
-
-        // const moveForward = (distance: number) => {
-        //     playerVector.setFromMatrixColumn(camera.matrix, 0);
-
-        //     playerVector.crossVectors(camera.up, playerVector);
-
-        //     camera.position.addScaledVector(playerVector, distance);
-        // };
-
-        // const movementVector = new Vector3(movement.x, movement.y, movement.z);
-        // movementVector.divideScalar(10);
-        // if (movementVector.x) moveRight(movementVector.x);
-        // if (movementVector.z) moveForward(movementVector.z);
-        // camera.position.y += movementVector.y;
     }, 15);
 
-    // const getDirection = () => {
-    //     const direction = new Vector3(0, 0, - 1);
+    useCameraRotationControl();
 
-    //     return (v: Vector3) => v.copy(direction).applyQuaternion(camera.quaternion);
-    // };
-
-
-    useEffect(() => {
-        initCameraControl(document.getElementById("canvas")!, {
-            rotateCamera(delta) {
-                euler.setFromQuaternion(camera.quaternion);
-
-                euler.y -= delta.x * 0.002;
-                euler.x -= delta.y * 0.002;
-
-                euler.x = Math.max(_PI_2 - polarAngle.max, Math.min(_PI_2 - polarAngle.min, euler.x));
-
-                camera.quaternion.setFromEuler(euler);
-            }
-        });
-        return () => {
-            // TODO we are not ready for this yet
-            console.error("Canvas unmounted!");
-        };
-    }, []);
-
-    return <>
-        <mesh ref={sphereRef} />
-    </>;
+    return <mesh ref={sphereRef} />;
 };
-
-export default Player;

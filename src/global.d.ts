@@ -6,6 +6,8 @@
 
 // GLOBAL CANVAS, PLEASE!
 
+// got really tired of disconnecting chrome dev tools
+
 declare module "lodash" {
     export const chunk: <T extends any[]>(arr: T, chunkSize: number) => T;
     export const times: <T>(count: number, callback: (index: number) => T) => T[];
