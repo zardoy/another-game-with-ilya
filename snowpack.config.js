@@ -9,5 +9,9 @@ module.exports = {
     devOptions: {
         // TODO-HIGH: raise an error when unsafe port is chosen
         port: 7000
+    },
+    env: {
+        SNOWPACK_PUBLIC_NAME: process.env.npm_package_name,
+        SNOWPACK_PUBLIC_BUILD_DATE: new Date().toLocaleDateString()
     }
 };
