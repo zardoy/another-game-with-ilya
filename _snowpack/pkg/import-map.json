@@ -1,0 +1,20 @@
+{
+  "imports": {
+    "@emotion/css": "./@emotion/css.js",
+    "@emotion/react": "./@emotion/react.js",
+    "@emotion/styled": "./@emotion/styled.js",
+    "@material-ui/core": "./@material-ui/core.js",
+    "@material-ui/core/styles/zIndex": "./@material-ui/core/styles/zIndex.js",
+    "@material-ui/lab": "./@material-ui/lab.js",
+    "@react-three/drei": "./@react-three/drei.js",
+    "@react-three/fiber": "./@react-three/fiber.js",
+    "clsx": "./clsx.js",
+    "contro": "./contro.js",
+    "lodash": "./lodash.js",
+    "react": "./react.js",
+    "react-dom": "./react-dom.js",
+    "three": "./three.js",
+    "use-typed-event-listener": "./use-typed-event-listener.js",
+    "vec3": "./vec3.js"
+  }
+}
