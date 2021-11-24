@@ -1,22 +1,22 @@
-import React from "react";
+import React from 'react'
 
-
-
-import InGameInterface from "./InGameInterface";
-import MouseRawInputSnackbar from "./MouseRawInputSnackbar";
+import InGameInterface from './InGameInterface'
+import MouseRawInputSnackbar from './MouseRawInputSnackbar'
 
 interface ComponentProps {
-    unloadModule: () => unknown;
+    unloadModule: () => unknown
 }
 
-export const touchMovement = { x: 0, y: 0, z: 0 };
+export const touchMovement = { x: 0, y: 0, z: 0 }
 
 let Root: React.FC<ComponentProps> = ({ unloadModule }) => {
-    return <>
-        <MouseRawInputSnackbar />
+    return (
+        <>
+            <MouseRawInputSnackbar />
 
-        <InGameInterface />
-    </>;
-};
+            <InGameInterface />
+        </>
+    )
+}
 
-export default Root;
+export default Root

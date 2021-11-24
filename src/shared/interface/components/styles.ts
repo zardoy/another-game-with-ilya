@@ -4,7 +4,7 @@ export const fullScreenFixedStyles = `
     left: 0;
     right: 0;
     bottom: 0;
-`;
+`
 
 export const buttonStyles = `
     padding: 0;
@@ -17,4 +17,4 @@ export const buttonStyles = `
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-`;
+`

@@ -1,19 +1,19 @@
-import { pointerlock } from "../util";
-import { PauseSchema } from "./GamePause";
+import { pointerlock } from '../util'
+import { PauseSchema } from './GamePause'
 
 export const pauseSchema: PauseSchema = {
     buttons: [
         {
-            label: "CONTINUE PLAYING",
+            label: 'CONTINUE PLAYING',
             click: () => pointerlock.capture(),
-            closePause: true
+            closePause: true,
         },
         {
-            label: "OPTIONS"
+            label: 'OPTIONS',
         },
         {
-            label: "UNLOAD MODULE",
+            label: 'UNLOAD MODULE',
             // click: unloadModule
         },
-    ]
-};
+    ],
+}

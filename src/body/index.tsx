@@ -1,11 +1,9 @@
 // MAIN APP ENTRYPOINT
 
-import "./pageInit";
+import './pageInit'
 
+import ReactDOM from 'react-dom'
 
+import Root from './App'
 
-import ReactDOM from "react-dom";
-
-import Root from "./App";
-
-ReactDOM.render(<Root />, document.getElementById("root"));
+ReactDOM.render(<Root />, document.getElementById('root'))

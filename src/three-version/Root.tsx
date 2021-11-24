@@ -1,14 +1,15 @@
-import React from "react";
+import React from 'react'
 
-import Canvas from "./Canvas";
+import Canvas from './Canvas'
 
-interface ComponentProps {
-}
+interface ComponentProps {}
 
 let Root: React.FC<ComponentProps> = () => {
-    return <>
-        <Canvas />
-    </>;
-};
+    return (
+        <>
+            <Canvas />
+        </>
+    )
+}
 
-export default Root;
+export default Root
