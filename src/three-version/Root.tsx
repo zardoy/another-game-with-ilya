@@ -1,14 +1,15 @@
-import React from "react";
+import React, { Suspense } from 'react'
 
-import Canvas from "./Canvas";
+import Canvas from './Canvas'
 
-interface ComponentProps {
-}
+interface ComponentProps {}
 
 let Root: React.FC<ComponentProps> = () => {
-    return <>
-        <Canvas />
-    </>;
-};
+    return (
+        <Suspense fallback={null}>
+            <Canvas />
+        </Suspense>
+    )
+}
 
-export default Root;
+export default Root

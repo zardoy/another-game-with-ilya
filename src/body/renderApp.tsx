@@ -1,13 +1,12 @@
 // MAIN ENTRYPOINT
 
-import "./pageInit";
+import './pageInit'
 
-import React from "react";
+import React from 'react'
 
-import ReactDOM from "react-dom";
+import ReactDOM from 'react-dom'
 
-import Interface from "../shared/interface/Root";
-import GlobalStyles from "./GlobalStyles";
+import GlobalStyles from './GlobalStyles'
 
 // WORKAROUND
 // try to not import theme to avoid overhead
@@ -15,10 +14,9 @@ import GlobalStyles from "./GlobalStyles";
 export const renderApp = (ChildrenComponent: React.FC) => {
     ReactDOM.render(
         <>
-            <Interface unloadModule={() => { }} />
-
             <GlobalStyles />
             <ChildrenComponent />
         </>,
-        document.getElementById("root"));
-};
+        document.getElementById('root'),
+    )
+}

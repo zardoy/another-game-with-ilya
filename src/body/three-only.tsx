@@ -1,5 +1,4 @@
-import ThreeEngine from "../three-version/Root";
-import { renderApp } from "./renderApp";
+import ThreeEngine from '../three-version/Root'
+import { renderApp } from './renderApp'
 
-renderApp(ThreeEngine);
-
+renderApp(ThreeEngine)
